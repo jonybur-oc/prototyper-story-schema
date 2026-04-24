@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Leave Management System",
+    "created_at": "2026-04-01T09:00:00Z"
+  },
+  "stories": [
+    {
+      "id": "7f3d9a2b-1c4e-4f8a-b5d6-9e0f1a2b3c4d",
+      "story_id": "US-01",
+      "title": "Employee can submit a leave request",
+      "description": "Show a form with date range picker and reason field. On submit, create the request and show it in 'Pending' status. Show a confirmation message with the request ID.",
+      "section": "Leave Requests",
+      "status": "implemented",
+      "priority": 1,
+      "assignee": "jony@example.com",
+      "reviewer": null,
+      "created_at": "2026-04-01T09:00:00Z",
+      "updated_at": "2026-04-15T14:30:00Z",
+      "version": 3,
+      "pr_refs": ["https://github.com/org/repo/pull/42"],
+      "jira_key": "LEAVE-101"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "story_id": "US-02",
+      "title": "Manager can approve or reject a leave request",
+      "description": "Show a list of pending requests from the manager's team. Each row shows employee name, dates, reason, and Approve/Reject buttons. On approval, notify the employee by email. On rejection, require a short reason.",
+      "section": "Leave Requests",
+      "status": "partial",
+      "priority": 1,
+      "assignee": "sara@example.com",
+      "reviewer": "jony@example.com",
+      "created_at": "2026-04-01T09:00:00Z",
+      "updated_at": "2026-04-20T11:00:00Z",
+      "version": 2,
+      "pr_refs": [],
+      "jira_key": "LEAVE-102"
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "story_id": "US-03",
+      "title": "Employee can view their leave balance",
+      "description": "Show the current leave balance broken down by type: annual, sick, personal. Show days remaining and days taken this year. Update in real time after a new request is approved.",
+      "section": "Leave Requests",
+      "status": "not-implemented",
+      "priority": 2,
+      "assignee": null,
+      "reviewer": null,
+      "created_at": "2026-04-01T09:00:00Z",
+      "updated_at": "2026-04-01T09:00:00Z",
+      "version": 1,
+      "pr_refs": [],
+      "jira_key": null
+    }
+  ]
+}
