@@ -45,7 +45,8 @@ stories:
 
 ## Specification
 
-Full spec: [SCHEMA.md](./SCHEMA.md)
+Full spec: [SCHEMA.md](./SCHEMA.md)  
+JSON Schema: [`schema/v1.0/stories.schema.json`](./schema/v1.0/stories.schema.json)
 
 ### Story object (summary)
 
@@ -103,8 +104,21 @@ npx @prototyper/validate stories.json
 
 ### JSON Schema (for editors and CI)
 
+The machine-readable JSON Schema is in this repo:
+
 ```
-https://schema.prototyper.app/story/v1.json
+https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json
+```
+
+Add the `$schema` field to your `stories.json` for editor autocomplete and validation:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json",
+  "schema_version": "1.0",
+  "project": { ... },
+  "stories": [ ... ]
+}
 ```
 
 Add to your `.vscode/settings.json` for YAML validation:
@@ -112,9 +126,15 @@ Add to your `.vscode/settings.json` for YAML validation:
 ```json
 {
   "yaml.schemas": {
-    "https://schema.prototyper.app/story/v1.json": "stories.yaml"
+    "https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json": "stories.yaml"
   }
 }
+```
+
+Validate locally with [ajv-cli](https://github.com/ajv-validator/ajv-cli):
+
+```bash
+npx ajv-cli validate -s schema/v1.0/stories.schema.json -d examples/leave-management.json
 ```
 
 ---

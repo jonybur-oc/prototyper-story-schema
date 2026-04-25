@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json",
+  "title": "Prototyper Story Contract",
+  "description": "Machine-readable user story contract. A structured format for writing user stories that AI coding assistants, CI pipelines, and audit tools can read alongside humans.",
+  "type": "object",
+  "required": ["schema_version", "project", "stories"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional. URL to this JSON Schema, for editor tooling."
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Schema version. Semver string. Readers must check major version; handle unknown minor/patch gracefully.",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+      "examples": ["1.0"]
+    },
+    "project": {
+      "$ref": "#/$defs/Project"
+    },
+    "stories": {
+      "type": "array",
+      "description": "All stories for this project. May be empty.",
+      "items": {
+        "$ref": "#/$defs/Story"
+      }
+    }
+  },
+  "$defs": {
+    "Project": {
+      "type": "object",
+      "title": "Project",
+      "description": "Project metadata. Stable across renames — use `id` as the canonical reference.",
+      "required": ["id", "name", "created_at"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Stable UUID. Never changes."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable project name.",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp. When the project was created."
+        }
+      }
+    },
+    "Story": {
+      "type": "object",
+      "title": "Story",
+      "description": "A single user story. Describes what a user can do or see — implementation-agnostic, observable, testable.",
+      "required": [
+        "id",
+        "story_id",
+        "title",
+        "description",
+        "section",
+        "status",
+        "priority",
+        "created_at",
+        "updated_at",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Stable UUID. Never changes, even if title or story_id changes. Use this as the canonical reference in PRs, audit logs, and integrations."
+        },
+        "story_id": {
+          "type": "string",
+          "description": "Human-readable ID, e.g. 'US-01'. May change if renumbered. Not stable — use `id` for persistent references.",
+          "minLength": 1,
+          "maxLength": 64,
+          "examples": ["US-01", "AUTH-03", "DASH-12"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Short, active-voice description of what the user can do. Should begin with '[Actor] can [action]' or similar.",
+          "minLength": 1,
+          "maxLength": 512,
+          "examples": [
+            "Employee can submit a leave request",
+            "Manager can approve or reject a leave request"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Observable behaviour. What a user can do or see. Implementation-agnostic. Specific enough that a QA engineer can verify it without asking the author.",
+          "minLength": 1
+        },
+        "section": {
+          "type": "string",
+          "description": "Feature area grouping for display and filtering. E.g. 'Auth', 'Dashboard', 'Leave Requests'.",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "description": "Implementation status. Set by Prototyper's audit process or manually. Do not infer from other fields.",
+          "enum": ["not-implemented", "partial", "implemented", "stale"]
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Story priority. 0=urgent, 1=high, 2=medium, 3=low.",
+          "enum": [0, 1, 2, 3]
+        },
+        "assignee": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 255 },
+            { "type": "null" }
+          ],
+          "description": "Username or email of the person responsible for implementing this story. Null if unassigned."
+        },
+        "reviewer": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 255 },
+            { "type": "null" }
+          ],
+          "description": "Username or email of the person reviewing this story's implementation. Null if unassigned."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp. When the story was created."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp. When the story was last modified."
+        },
+        "version": {
+          "type": "integer",
+          "description": "Monotonically increasing version counter. Starts at 1. Increments on every change.",
+          "minimum": 1
+        },
+        "pr_refs": {
+          "type": "array",
+          "description": "GitHub PR URLs that implement this story. Optional. May be empty.",
+          "items": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://github\\.com/.+/pull/[0-9]+$"
+          },
+          "default": []
+        },
+        "jira_key": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]+-[0-9]+$",
+              "description": "Linked Jira issue key, e.g. 'PROJ-123'."
+            },
+            { "type": "null" }
+          ],
+          "description": "Linked Jira issue key. Null if no Jira link."
+        }
+      }
+    }
+  }
+}
