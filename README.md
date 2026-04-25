@@ -74,7 +74,9 @@ JSON Schema: [`schema/v1.0/stories.schema.json`](./schema/v1.0/stories.schema.js
 | Tool | How |
 |---|---|
 | [Prototyper](https://prototyper.app) | Canonical writer and reader |
-| Claude Code | `CLAUDE.md` export — stories become implementation instructions |
+| Claude Code | MCP server (`@prototyper/mcp-server`) + agent template (`.claude/agents/story-implementer.md`) |
+| Cursor | MCP server — stories as structured context for the agent fleet |
+| Windsurf | MCP server — stories as the plan step before Devin handoff |
 | GitHub Actions | `prototyper/audit` action — validates PR coverage against stories |
 | CI pipelines | JSON export for automated gap detection |
 | Documentation generators | Stories → user-facing feature docs |
@@ -162,6 +164,26 @@ Readers should:
 - Surface an error if `schema_version` major is higher than supported
 
 **Current: `1.0` — Stable.**
+
+---
+
+## Claude Code integration
+
+Prototyper ships a Claude Code subagent template that connects the MCP server to an implementation workflow. Drop it into your project:
+
+```bash
+# 1. Install the MCP server
+claude mcp add prototyper \
+  --env PROTOTYPER_API_KEY=your_api_key \
+  --env PROTOTYPER_SUPABASE_URL=your_supabase_url \
+  -- npx -y @prototyper/mcp-server
+
+# 2. Copy the agent template
+curl -o .claude/agents/story-implementer.md \
+  https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/.claude/agents/story-implementer.md
+```
+
+The agent will appear in Claude Code's `/` picker. When invoked, it reads your sprint backlog from Prototyper, implements to acceptance criteria, and marks stories as implemented when done. See [`.claude/agents/story-implementer.md`](./.claude/agents/story-implementer.md) for the full template.
 
 ---
 
