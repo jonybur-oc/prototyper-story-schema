@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "prototyper": {
+      "command": "npx",
+      "args": ["-y", "@prototyper/mcp-server"],
+      "env": {
+        "PROTOTYPER_API_KEY": "${PROTOTYPER_API_KEY}",
+        "PROTOTYPER_PROJECT_ID": "${PROTOTYPER_PROJECT_ID}"
+      }
+    }
+  }
+}

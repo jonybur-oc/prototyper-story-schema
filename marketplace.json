@@ -1,0 +1,19 @@
+{
+  "name": "Prototyper Plugin Marketplace",
+  "version": "1.0.0",
+  "description": "Official Prototyper plugin for Claude Code — story-first development via MCP",
+  "plugins": [
+    {
+      "name": "prototyper",
+      "displayName": "Prototyper — Story-First Development",
+      "version": "0.1.0",
+      "description": "User stories as structured MCP context for Claude Code. Write stories in Prototyper, let Claude Code implement them to acceptance criteria.",
+      "source": "https://github.com/jonybur-oc/prototyper-story-schema",
+      "homepage": "https://github.com/jonybur-oc/prototyper-story-schema",
+      "keywords": ["user-stories", "product-management", "mcp", "story-driven", "pm-tools"],
+      "author": "Jony Bursztyn",
+      "license": "MIT",
+      "requiredEnvVars": ["PROTOTYPER_API_KEY", "PROTOTYPER_PROJECT_ID"]
+    }
+  ]
+}

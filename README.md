@@ -169,16 +169,43 @@ Readers should:
 
 ## Claude Code integration
 
-Prototyper ships a Claude Code subagent template that connects the MCP server to an implementation workflow. Drop it into your project:
+### Option A — Claude Code Plugin (recommended)
+
+Install the Prototyper plugin directly from Claude Code:
+
+```bash
+# Add the self-hosted plugin marketplace
+/plugin marketplace add jonybur-oc/prototyper-story-schema
+
+# Install the plugin
+/plugin install prototyper
+```
+
+This installs:
+- **MCP server**: `@prototyper/mcp-server` — stories as MCP resources
+- **Agent**: `story-implementer` — implements to acceptance criteria, marks done
+- **Skills**: `write-story`, `sync-stories` — help writing and syncing stories
+- **Command**: `/prototyper:sync` — pull open stories into your session
+
+Set your environment variables:
+
+```bash
+export PROTOTYPER_API_KEY=your_api_key
+export PROTOTYPER_PROJECT_ID=your_project_id
+```
+
+Then run `/prototyper:sync` to load your sprint's open stories.
+
+### Option B — Manual setup
 
 ```bash
 # 1. Install the MCP server
 claude mcp add prototyper \
   --env PROTOTYPER_API_KEY=your_api_key \
-  --env PROTOTYPER_SUPABASE_URL=your_supabase_url \
   -- npx -y @prototyper/mcp-server
 
 # 2. Copy the agent template
+mkdir -p .claude/agents
 curl -o .claude/agents/story-implementer.md \
   https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/.claude/agents/story-implementer.md
 ```

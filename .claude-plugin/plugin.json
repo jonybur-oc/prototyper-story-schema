@@ -1,0 +1,35 @@
+{
+  "name": "prototyper",
+  "displayName": "Prototyper — Story-First Development",
+  "version": "0.1.0",
+  "description": "User stories as structured MCP context for Claude Code. Write your stories in Prototyper, let Claude Code implement them to acceptance criteria — one story at a time.",
+  "author": "Jony Bursztyn",
+  "homepage": "https://github.com/jonybur-oc/prototyper-story-schema",
+  "repository": "https://github.com/jonybur-oc/prototyper-story-schema",
+  "license": "MIT",
+  "keywords": ["user-stories", "product-management", "mcp", "prototyper", "story-driven"],
+  "mcpServers": [".mcp.json"],
+  "agents": ["agents/story-implementer.md"],
+  "skills": ["skills/write-story.md", "skills/sync-stories.md"],
+  "commands": ["commands/sync-stories.md"],
+  "requiredEnvVars": [
+    {
+      "name": "PROTOTYPER_API_KEY",
+      "description": "Your Prototyper API key. Get it from your account settings in the Prototyper app.",
+      "secret": true
+    },
+    {
+      "name": "PROTOTYPER_PROJECT_ID",
+      "description": "Your Prototyper project ID. Find it in the URL when you open a project in the Prototyper app.",
+      "secret": false
+    }
+  ],
+  "setup": {
+    "steps": [
+      "1. Get your API key from Prototyper account settings",
+      "2. Copy your project ID from the Prototyper app URL",
+      "3. Set PROTOTYPER_API_KEY and PROTOTYPER_PROJECT_ID environment variables",
+      "4. Run /prototyper:sync to pull your open stories into the session"
+    ]
+  }
+}
