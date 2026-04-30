@@ -96,6 +96,43 @@ prototyper export --format yaml > stories.yaml
 prototyper export --format claude-code > CLAUDE.md
 ```
 
+#### Option C — CLAUDE.md export (no MCP server required)
+
+If you don't want to run an MCP server, you can export your active stories to a `CLAUDE.md` file. Claude Code reads `CLAUDE.md` automatically at startup, so the agent gets story context without any server configuration.
+
+```bash
+prototyper export --format claude-code > CLAUDE.md
+```
+
+This generates a `CLAUDE.md` containing your active sprint's stories as structured context. The agent sees story titles, descriptions, and status before writing any code.
+
+**When to use CLAUDE.md export vs. MCP:**
+
+| | CLAUDE.md export | MCP server |
+|---|---|---|
+| Setup | Zero — just a file in the repo | `claude mcp add prototyper ...` |
+| Story Guard (per-action scope check) | ❌ Not available | ✅ via PostToolUse hooks |
+| Real-time story updates | ❌ Static snapshot | ✅ Live from Prototyper |
+| Works without running server | ✅ Yes | ❌ Server must be running |
+| Best for | Quick start, read-only context | Full Story Guard + audit |
+
+**Hybrid pattern (recommended for teams moving to MCP):**
+Use the CLAUDE.md export for planning context (zero friction) and add the MCP server when you're ready for Story Guard (per-action scope checking). The two are compatible — `CLAUDE.md` provides startup context; `get_active_story()` provides the live PostToolUse contract.
+
+```bash
+# Export once to seed CLAUDE.md planning context
+prototyper export --format claude-code > CLAUDE.md
+
+# Add MCP server when ready for Story Guard
+claude mcp add prototyper \
+  --env PROTOTYPER_API_KEY=your_api_key \
+  -- npx -y @prototyper/mcp-server
+```
+
+Commit `CLAUDE.md` to your repo. Re-run the export command to refresh it when stories change.
+
+---
+
 ### Without Prototyper
 
 Write any valid JSON or YAML that matches the schema and passes validation:
