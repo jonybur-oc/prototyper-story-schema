@@ -1,0 +1,102 @@
+name: Validate stories.yaml
+
+on:
+  push:
+    paths:
+      - '**stories.yaml'
+      - '**stories.json'
+      - 'schema/**'
+      - 'examples/**'
+  pull_request:
+    paths:
+      - '**stories.yaml'
+      - '**stories.json'
+      - 'schema/**'
+      - 'examples/**'
+
+jobs:
+  validate:
+    name: Validate against schema v1.0
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ajv-cli
+        run: npm install -g ajv-cli ajv-formats
+
+      - name: Validate example YAML files
+        run: |
+          # Convert YAML examples to JSON for validation
+          npm install -g js-yaml
+          node -e "
+            const yaml = require('js-yaml');
+            const fs = require('fs');
+            const files = fs.readdirSync('examples').filter(f => f.endsWith('.yaml'));
+            files.forEach(f => {
+              const doc = yaml.load(fs.readFileSync('examples/' + f, 'utf8'));
+              fs.writeFileSync('examples/' + f.replace('.yaml', '-converted.json'), JSON.stringify(doc, null, 2));
+              console.log('Converted: ' + f);
+            });
+          "
+
+      - name: Validate example JSON files
+        run: |
+          for file in examples/*.json; do
+            # Skip converted temp files
+            if [[ "$file" == *"-converted.json" ]]; then
+              continue
+            fi
+            echo "Validating $file..."
+            ajv validate \
+              -s schema/v1.0/stories.schema.json \
+              -d "$file" \
+              --strict=false \
+              --spec=draft2020 \
+              && echo "  ✓ $file is valid" \
+              || (echo "  ✗ $file is invalid" && exit 1)
+          done
+
+      - name: Validate converted YAML examples
+        run: |
+          for file in examples/*-converted.json; do
+            echo "Validating $file (converted from YAML)..."
+            ajv validate \
+              -s schema/v1.0/stories.schema.json \
+              -d "$file" \
+              --strict=false \
+              --spec=draft2020 \
+              && echo "  ✓ valid" \
+              || (echo "  ✗ invalid" && exit 1)
+          done
+
+      - name: Validate any stories.yaml files in repo
+        run: |
+          find . -name "stories.yaml" \
+            -not -path "./examples/*" \
+            -not -path "./.git/*" | while read file; do
+            echo "Validating $file..."
+            node -e "
+              const yaml = require('js-yaml');
+              const fs = require('fs');
+              const doc = yaml.load(fs.readFileSync('$file', 'utf8'));
+              fs.writeFileSync('/tmp/stories-check.json', JSON.stringify(doc, null, 2));
+            "
+            ajv validate \
+              -s schema/v1.0/stories.schema.json \
+              -d /tmp/stories-check.json \
+              --strict=false \
+              --spec=draft2020 \
+              && echo "  ✓ $file is valid" \
+              || (echo "  ✗ $file is invalid" && exit 1)
+          done
+
+      - name: Clean up temp files
+        if: always()
+        run: rm -f examples/*-converted.json /tmp/stories-check.json
