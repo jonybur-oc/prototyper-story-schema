@@ -4,6 +4,10 @@
 
 Before your agent writes code, it reads the story and verifies the action is within acceptance criteria.
 
+> **TL;DR:** Add a Claude Code PostToolUse hook. After every agent action, your agent reads the active story and checks whether what it just did was within the acceptance criteria. Before: agent goes off-piste silently. After: agent catches itself before the next step. 15-minute setup — works with or without the Prototyper web app.
+>
+> [Skip to Claude Code setup →](#option-1-with-the-prototyper-mcp-server-full-stack) · [Skip to Cursor setup →](#option-3-cursor-rules-without-claude-code-hooks) · [Skip to local-file setup (no account) →](#option-2-with-a-local-prototyper-storiesyaml-file-no-web-app-required)
+
 ---
 
 ## The problem
