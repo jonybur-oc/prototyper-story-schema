@@ -20,6 +20,25 @@ Planned for v1.2 (no fixed release date):
 
 ---
 
+## [1.1.1] — 2026-05-03
+
+Documentation patch. No schema changes.
+
+### Documentation
+
+- `SCHEMA.md`: added **Compliance object** section — TypeScript-style type signature, field reference table, YAML example (PSD2 payment story), and four authoring rules:
+  - `approved_by` and `approved_at` are required when the `compliance` block is present.
+  - `audit_note` SHOULD reference the specific regulatory article or control.
+  - Tooling MUST warn when a `stale` story carries a `compliance` block (re-approval required).
+  - The `compliance` block MUST NOT be used as a placeholder — it signals sign-off has occurred.
+- Version header bumped to v1.1.1.
+
+### Rationale
+
+The `compliance` field was introduced in v1.1.0 and documented in the JSON Schema (`$defs/Compliance`), but the human-readable `SCHEMA.md` only noted its existence in a one-line comment. Integrators building regulated-sector tooling had no field-level documentation. This patch closes that gap.
+
+---
+
 ## [1.1.0] — 2026-05-03
 
 Quality contract fields and reduced friction for hand-authored files.
@@ -157,6 +176,7 @@ Both are valid. YAML is the recommended authoring format because multiline strin
 
 ---
 
-[Unreleased]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/jonybur-oc/prototyper-story-schema/releases/tag/v1.0.0

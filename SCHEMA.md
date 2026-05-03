@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.1  
+**Version:** 1.1.1  
 **Status:** Stable  
 **Date:** 2026-05-03
 
@@ -87,6 +87,54 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
   "compliance": Compliance | null  // Formal approval block. Include for regulated-sector stories.
 }
 ```
+
+---
+
+## Compliance object
+
+The `compliance` block is an optional sub-object on a Story. Include it when a human must formally sign off before implementation — e.g. under PSD2/3, HIPAA, ISO 27001, SOC 2, or an internal change-advisory board (CAB) process.
+
+```typescript
+{
+  "approved_by": "string",        // Required. Email or username of the approver.
+  "approved_at": "string",        // Required. ISO 8601 UTC timestamp of approval.
+  "review_ref": "string | null",  // Optional. URL to the review issue, PR, or document.
+  "audit_note": "string | null"   // Optional. Free-text reason, e.g. regulatory article reference.
+}
+```
+
+---
+
+### Compliance field reference
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `approved_by` | string | ✅ | Email or username of the approver (CTO, compliance officer, auditor). Max 255 chars. |
+| `approved_at` | ISO 8601 string | ✅ | Timestamp of when approval was granted. UTC. |
+| `review_ref` | string (URI) \| null | ✗ | URL to the review issue, PR, or document where approval is recorded. Recommended for audit trails. |
+| `audit_note` | string \| null | ✗ | Free-text explanation of why this story requires compliance sign-off. Examples: `"PSD2 Article 95 — strong authentication requirement"`, `"ISO 27001 A.9.2 — access control change"`. |
+
+### Compliance example (YAML)
+
+```yaml
+story_id: PAY-07
+title: User can initiate a high-value payment
+description: >
+  Allow users to initiate payments above €1,000. Require re-authentication
+  via biometric or 2FA before confirming the transfer.
+status: not-implemented
+compliance:
+  approved_by: chief-compliance-officer@example.com
+  approved_at: "2026-05-01T10:30:00Z"
+  review_ref: "https://jira.example.com/browse/COMP-219"
+  audit_note: "PSD2 Article 97 — strong customer authentication required for transactions > €1,000"
+```
+
+**Rules:**
+- `approved_by` and `approved_at` are required when the `compliance` block is present.
+- `audit_note` SHOULD reference the specific regulatory article or control — this makes audit trails actionable.
+- The `stale` status MUST NOT be set on a story that has a `compliance` block without re-approval. Tooling should surface a warning when a `stale` story carries a compliance block.
+- Do not set the `compliance` block as a placeholder. It signals human sign-off has occurred; use `audit_note` to explain what is pending if sign-off is not yet complete.
 
 ---
 
@@ -287,6 +335,9 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.1.1** — 2026-05-03  
+Compliance object documented. Added field table, TypeScript signature, YAML example, and four authoring rules (stale + compliance interaction, placeholder prohibition, audit_note SHOULD reference regulatory article). No schema changes — documentation patch only.
 
 **v1.1** — 2026-05-03  
 Quality contract fields + relaxed required-fields for hand-authored files.
