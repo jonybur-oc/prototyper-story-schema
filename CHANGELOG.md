@@ -19,6 +19,21 @@ Planned for v1.2 (no fixed release date):
 
 ---
 
+## [1.1.4] — 2026-05-03
+
+Schema consistency fix. No new fields or behaviour changes.
+
+### Fixed
+
+- **Story object TypeScript type** (`SCHEMA.md`, Story object section): `status` enum was missing `"deprecated"`. The value was documented in the Status values table and semantics section (added in v1.1.2) but the type signature still read `"not-implemented" | "partial" | "implemented" | "stale"`. Now reads `"not-implemented" | "partial" | "implemented" | "stale" | "deprecated"`.
+- **JSON Schema** (`schema/v1.1/stories.schema.json`, `$defs.Story.properties.status.enum`): same omission — `"deprecated"` was missing from the machine-readable enum. A validator running against the JSON Schema would incorrectly reject any story with `status: deprecated` as invalid. Array now includes `"deprecated"`.
+
+### Rationale
+
+The `deprecated` status value was introduced in v1.1.2 with full documentation (semantics, decision guide, state machine transitions, tooling rules) but was not added to the two authoritative type definitions — the TypeScript signature in SCHEMA.md and the JSON Schema file. Any tool or linter using `schema/v1.1/stories.schema.json` for validation would have rejected `deprecated` stories as invalid, directly contradicting the documented spec. This patch closes the gap.
+
+---
+
 ## [1.1.3] — 2026-05-03
 
 Documentation patch. No schema changes.

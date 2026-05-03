@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.1.3  
+**Version:** 1.1.4  
 **Status:** Stable  
 **Date:** 2026-05-03
 
@@ -61,7 +61,7 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
   "notes": "string | null",  // Rationale, scope exclusions, ADR links. Distinct from description. Optional.
 
   // ── Status ────────────────────────────────────────────────────────────────
-  "status": "not-implemented" | "partial" | "implemented" | "stale",  // Required.
+  "status": "not-implemented" | "partial" | "implemented" | "stale" | "deprecated",  // Required.
   "priority": 0 | 1 | 2 | 3,  // 0=urgent, 1=high, 2=medium, 3=low. Optional.
 
   // ── Collaboration ─────────────────────────────────────────────────────────
@@ -446,6 +446,9 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.1.4** — 2026-05-03  
+`deprecated` status value added to TypeScript type signature and JSON Schema enum. The value was documented in the Status values table and semantics section (v1.1.2) but was missing from the Story object type definition on line 64 and from `schema/v1.1/stories.schema.json`. A validator running against the JSON Schema would incorrectly reject stories with `status: deprecated`. This patch aligns the machine-readable schema with the documented semantics. No behaviour change — `deprecated` was always intended to be valid.
 
 **v1.1.3** — 2026-05-03  
 `notes` field documented. Added authoring guidance: what belongs in `notes` vs `description` vs `acceptance_criteria`, why `notes` is excluded from Story Guard scope-checking, and a complete worked example showing the separation between observable behaviour (in `description`/`acceptance_criteria`) and rationale/constraints (in `notes`). No schema changes — documentation patch only.
