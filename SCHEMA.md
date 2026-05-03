@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.1.2  
+**Version:** 1.1.3  
 **Status:** Stable  
 **Date:** 2026-05-03
 
@@ -213,6 +213,55 @@ Tooling SHOULD warn when:
 
 ---
 
+## The `notes` field
+
+The `notes` field is for author commentary — things that are true about the story but are not the observable behaviour itself. It is distinct from `description`, which describes what a user can do or see.
+
+### What belongs in `notes`
+
+- **Rationale** — why this story exists, what was considered and rejected, what the business driver is.
+- **Scope exclusions** — what is explicitly out of scope for this story ("Out of scope: mobile view — see US-12").
+- **ADR or Slack links** — references to decisions recorded elsewhere.
+- **Implementation constraints** — technical constraints that limit how the story can be implemented ("Must not block the main thread; use a Web Worker").
+- **Deferred items** — work known to be missing that will be addressed in a follow-up story.
+
+### What does NOT belong in `notes`
+
+- Observable behaviour. If a user can see or do it, it belongs in `description` or `acceptance_criteria`.
+- Acceptance criteria. `notes` is not a secondary AC list. If it is testable, it goes in `acceptance_criteria`.
+- Implementation details that don't constrain the story. How you implement it is not a story concern.
+
+### Why `notes` matters for Story Guard
+
+Story Guard's scope-checking function reads the `description` and `acceptance_criteria` to determine whether an agent action is in scope. Mixing implementation rationale into `description` degrades this check — the LLM sees implementation details as part of the contract and may allow or refuse actions based on them incorrectly. `notes` is excluded from scope-checking by design.
+
+### Example
+
+```yaml
+story_id: PERF-03
+title: Dashboard loads within 2 seconds on a 4G connection
+description: >
+  The main dashboard view is fully interactive within 2 seconds of navigation
+  on a 4G connection (20 Mbps down, 10 ms RTT). A loading skeleton is shown
+  during data fetch; the page does not flash an empty state.
+status: not-implemented
+acceptance_criteria:
+  - "Lighthouse performance score ≥ 90 on mobile preset"
+  - "Skeleton renders immediately; data appears within 2s on simulated 4G"
+  - "No layout shift after initial render (CLS < 0.1)"
+notes: >
+  Background: dashboard was taking 6–8s on the old architecture (Slack thread:
+  #perf-2026-04). The root cause was a waterfall of three sequential API calls;
+  the fix is to fan them out in parallel. We are not targeting 3G or offline
+  performance in this story — see PERF-07 for the offline caching work.
+  ADR-14 records the decision to use React Query with stale-while-revalidate
+  instead of Redux for this feature.
+```
+
+Note that the `description` and `acceptance_criteria` contain only observable, testable behaviour. The `notes` field carries the rationale and the implementation constraint (parallel API calls, not targeting 3G) — information that is useful to the author and reviewer but that should not influence Story Guard's scope check.
+
+---
+
 ## Rules for story descriptions
 
 A good description is:
@@ -397,6 +446,9 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.1.3** — 2026-05-03  
+`notes` field documented. Added authoring guidance: what belongs in `notes` vs `description` vs `acceptance_criteria`, why `notes` is excluded from Story Guard scope-checking, and a complete worked example showing the separation between observable behaviour (in `description`/`acceptance_criteria`) and rationale/constraints (in `notes`). No schema changes — documentation patch only.
 
 **v1.1.2** — 2026-05-03  
 Status semantics documented. `deprecated` status value added. Status transition diagram added. Three tooling-SHOULD rules for `partial` > 30 days, `stale` in open PRs, and `implemented` → `deprecated` without `notes`. No schema changes — documentation patch only.

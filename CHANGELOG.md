@@ -19,6 +19,21 @@ Planned for v1.2 (no fixed release date):
 
 ---
 
+## [1.1.3] — 2026-05-03
+
+Documentation patch. No schema changes.
+
+### Documentation
+
+- `SCHEMA.md`: added **The `notes` field** section — full authoring guidance covering: what belongs in `notes` (rationale, scope exclusions, ADR links, implementation constraints, deferred items); what does NOT belong (observable behaviour, acceptance criteria, implementation detail without constraint); why `notes` is excluded from Story Guard scope-checking by design; and a worked example (`PERF-03`) demonstrating the separation between `description`/`acceptance_criteria` (observable, testable) and `notes` (rationale, constraints).
+- Version header bumped to v1.1.3.
+
+### Rationale
+
+The `notes` field was introduced in v1.1.0 and noted in a one-line comment in the Story object type signature, but had no authoring guidance. Real usage showed teams putting implementation rationale, ADR links, and scope exclusions into `description` — which degrades Story Guard's scope-checking accuracy because the LLM reads `description` as the behavioural contract. The fix is clear separation: `description` = what users can do/see; `acceptance_criteria` = how you verify it; `notes` = everything else. This patch makes that separation explicit and illustrates it with a worked example.
+
+---
+
 ## [1.1.2] — 2026-05-03
 
 Documentation patch. No schema changes.
@@ -192,7 +207,9 @@ Both are valid. YAML is the recommended authoring format because multiline strin
 
 ---
 
-[Unreleased]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/jonybur-oc/prototyper-story-schema/releases/tag/v1.0.0
