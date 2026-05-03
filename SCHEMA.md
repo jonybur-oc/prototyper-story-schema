@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.1.4  
+**Version:** 1.1.5  
 **Status:** Stable  
 **Date:** 2026-05-03
 
@@ -262,6 +262,68 @@ Note that the `description` and `acceptance_criteria` contain only observable, t
 
 ---
 
+## The `story_id` field
+
+The `story_id` is the primary human-readable identifier for a story. It appears in `depends_on` references, PR comments, CI output, and test annotations. It must be stable once set.
+
+### Format conventions
+
+A `story_id` follows the pattern `<PREFIX>-<NUMBER>`, where:
+- **PREFIX** is 2–8 uppercase ASCII letters identifying the area (e.g. `US`, `AUTH`, `PAY`, `DASH`, `API`, `ADMIN`).
+- **NUMBER** is a zero-padded decimal integer starting at 01 (e.g. `01`, `02`, `10`, `100`).
+
+Examples of valid story IDs: `US-01`, `AUTH-07`, `PAY-12`, `DASH-03`, `API-100`.
+
+Prefix guidelines:
+
+| Prefix | Typical use |
+|---|---|
+| `US` | General user stories (no specific area) |
+| `AUTH` | Authentication and authorisation |
+| `PAY` | Payments and billing |
+| `DASH` | Dashboard and analytics |
+| `API` | Developer-facing API |
+| `ADMIN` | Admin panel features |
+| `PERF` | Performance stories |
+| `INFRA` | Infrastructure and DevOps |
+
+If none of the above fit, use any short, memorable uppercase prefix. The prefix is informational — it does not affect validation.
+
+### Uniqueness
+
+A `story_id` MUST be unique within a `stories.yaml` file. Duplicate `story_id` values are a validation error.
+
+Across multiple `stories.yaml` files in the same repository, `story_id` uniqueness is RECOMMENDED but not required — tools that merge stories across files SHOULD warn on collision.
+
+### Stability
+
+`story_id` values MUST NOT change once assigned. Stories are referenced by `story_id` in:
+- `depends_on` arrays of other stories
+- PR titles, descriptions, and commit messages
+- Test file annotations (`test_refs`)
+- External issue trackers synced via `jira_key` or Linear equivalents
+
+If you need to reorganise stories, renumber sections, or reflect a refactor:
+1. Keep the old `story_id` on the existing story.
+2. Create a new story with a new `story_id` for the new work.
+3. Mark the old story `deprecated` with a `notes` entry explaining the successor.
+
+### Numbering
+
+Numbers are scoped to their prefix. `US-01` and `AUTH-01` are distinct stories. Numbers are recommended to be sequential within a prefix, but gaps are acceptable — do not renumber existing stories to fill a gap. A story that was `US-04` remains `US-04` even if you delete `US-03`.
+
+### Tooling rules
+
+Validators MUST:
+- Reject duplicate `story_id` values within a file.
+- Reject `depends_on` references that point to a `story_id` not present in the same file (unless the tool supports cross-file resolution).
+
+Validators SHOULD warn when:
+- A `story_id` does not match the `<PREFIX>-<NUMBER>` pattern.
+- A `depends_on` reference points to a `deprecated` story.
+
+---
+
 ## Rules for story descriptions
 
 A good description is:
@@ -446,6 +508,9 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.1.5** — 2026-05-03  
+`story_id` field documented with authoring conventions, uniqueness rules, and stability rules. Added: format pattern (`<PREFIX>-<NUMBER>`), prefix guideline table, uniqueness constraints (MUST be unique within file, RECOMMENDED across files), stability rules (MUST NOT change once assigned), numbering guidance (sequential, gaps permitted, never renumber), and three tooling rules (validators MUST reject duplicates and invalid cross-file depends_on; SHOULD warn on non-conforming IDs and deprecated depends_on). No schema changes — documentation patch only.
 
 **v1.1.4** — 2026-05-03  
 `deprecated` status value added to TypeScript type signature and JSON Schema enum. The value was documented in the Status values table and semantics section (v1.1.2) but was missing from the Story object type definition on line 64 and from `schema/v1.1/stories.schema.json`. A validator running against the JSON Schema would incorrectly reject stories with `status: deprecated`. This patch aligns the machine-readable schema with the documented semantics. No behaviour change — `deprecated` was always intended to be valid.

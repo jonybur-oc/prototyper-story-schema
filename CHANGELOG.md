@@ -19,6 +19,27 @@ Planned for v1.2 (no fixed release date):
 
 ---
 
+## [1.1.5] — 2026-05-03
+
+Documentation patch. No schema changes.
+
+### Documentation
+
+- `SCHEMA.md`: added **The `story_id` field** section — full authoring guidance covering:
+  - Format convention: `<PREFIX>-<NUMBER>` pattern with 2–8 uppercase ASCII letter prefix and zero-padded integer.
+  - Prefix guideline table (US, AUTH, PAY, DASH, API, ADMIN, PERF, INFRA and open convention).
+  - Uniqueness rules: MUST be unique within a file (validation error on duplicate); RECOMMENDED unique across files in a repo (warn on collision).
+  - Stability rules: `story_id` MUST NOT change once assigned; how to handle reorganisation (deprecate old, create new).
+  - Numbering guidance: sequential within prefix, gaps permitted, never renumber existing stories.
+  - Tooling rules: validators MUST reject duplicates and invalid cross-file `depends_on`; SHOULD warn on non-conforming IDs and `depends_on` pointing to `deprecated` stories.
+- Version header bumped to v1.1.5.
+
+### Rationale
+
+`story_id` is the primary human-readable identifier in the spec — it appears in `depends_on` arrays, PR messages, CI output, and test annotations — but had only a one-line comment in the Story object type signature with no conventions documented. Real usage showed teams using inconsistent formats (`US1`, `story-auth-01`, `Feature_3`), IDs changing when stories were reordered, and `depends_on` references breaking silently. This patch establishes clear authoring conventions and makes uniqueness/stability into hard tooling rules so validators can enforce them.
+
+---
+
 ## [1.1.4] — 2026-05-03
 
 Schema consistency fix. No new fields or behaviour changes.
