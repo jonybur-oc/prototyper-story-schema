@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.1.1  
+**Version:** 1.1.2  
 **Status:** Stable  
 **Date:** 2026-05-03
 
@@ -146,8 +146,70 @@ compliance:
 | `partial` | Implementation detected but incomplete |
 | `implemented` | Implementation detected and verified |
 | `stale` | Previously implemented; source files changed since last audit |
+| `deprecated` | Feature was intentionally removed; story retained for history |
 
 Status is set by Prototyper's audit process or manually. Readers should not infer status from other fields.
+
+### Status semantics
+
+Each value has a precise meaning. Use the decision guide below when setting status manually:
+
+**`not-implemented`** — The story has been written and accepted, but no implementation exists. This is the starting state for all new stories. Use this when:
+- A feature is planned but no code has been written.
+- A story was rolled back completely and code was deleted.
+
+**`partial`** — Some acceptance criteria are satisfied but not all. The feature exists but is incomplete. Use this when:
+- The UI renders but a key interaction is missing.
+- The happy path works but edge cases (error states, empty states, loading states) do not.
+- An acceptance criterion is behind a feature flag or not yet merged.
+
+Do not use `partial` as a permanent state. If a story has been `partial` for more than one sprint without movement, either close it (mark `not-implemented` and rewrite), complete it, or split it into a done story + a new story for the remainder.
+
+**`implemented`** — All acceptance criteria are satisfied and verified. The feature is shipped. Use this when:
+- Every acceptance criterion in the `acceptance_criteria` list has a corresponding passing test or manual sign-off.
+- If no `acceptance_criteria` are defined: the description is fully observable in the product.
+
+Once `implemented`, a story should only leave this status if the acceptance criteria change (→ `partial`) or source files covering the story are significantly modified without a corresponding update (→ `stale`).
+
+**`stale`** — The story was previously `implemented`, but a subsequent code change may have broken or changed the behaviour. The story needs re-audit. Use this when:
+- The Prototyper audit detects that files referenced by `test_refs` have changed.
+- A PR is merged that touches the story's feature area without updating the story.
+- A refactor changes observable behaviour that the story described.
+
+`stale` is not a permanent resting state. Every `stale` story is a liability: it means the spec and the code disagree. Tooling SHOULD surface `stale` stories in PR reviews. Authors SHOULD resolve `stale` within the same sprint — either by re-verifying (→ `implemented`) or updating the story to match the new behaviour.
+
+`stale` is distinct from `deprecated`: `stale` means _"we don't know if it still works"_; `deprecated` means _"it was intentionally removed."_
+
+**`deprecated`** — The feature was intentionally removed from the product. The story is retained for historical record and audit continuity. Use this when:
+- A feature was shipped (`implemented`) and then deliberately removed in a later release.
+- A product decision was made to discontinue the feature.
+
+Do not use `deprecated` for:
+- Features that were never shipped (use `not-implemented` or delete the story).
+- Features that are temporarily disabled (use `partial` or a `notes` field).
+- Features that are broken but still in the product (use `stale`).
+
+Deprecated stories MUST retain their `story_id` permanently. Other stories may reference a deprecated story in `depends_on` — those references remain valid.
+
+### Status transitions
+
+```
+not-implemented → partial      (some criteria met)
+not-implemented → implemented  (all criteria met in one pass)
+partial         → implemented  (remaining criteria met)
+partial         → not-implemented  (rollback; criteria no longer met)
+implemented     → stale        (source changed; re-audit needed)
+implemented     → deprecated   (feature intentionally removed)
+stale           → implemented  (re-audit confirms criteria still met)
+stale           → partial      (re-audit: only some criteria still met)
+stale           → deprecated   (feature was removed, not just changed)
+deprecated      → (terminal; no outgoing transitions)
+```
+
+Tooling SHOULD warn when:
+- A story has been `partial` for > 30 days.
+- A story is `stale` and is referenced in a currently open PR.
+- A story transitions from `implemented` → `deprecated` without a `notes` entry explaining why.
 
 ---
 
@@ -335,6 +397,9 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.1.2** — 2026-05-03  
+Status semantics documented. `deprecated` status value added. Status transition diagram added. Three tooling-SHOULD rules for `partial` > 30 days, `stale` in open PRs, and `implemented` → `deprecated` without `notes`. No schema changes — documentation patch only.
 
 **v1.1.1** — 2026-05-03  
 Compliance object documented. Added field table, TypeScript signature, YAML example, and four authoring rules (stale + compliance interaction, placeholder prohibition, audit_note SHOULD reference regulatory article). No schema changes — documentation patch only.

@@ -10,13 +10,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Schema 
 
 Planned for v1.2 (no fixed release date):
 
-- `deprecated` status value — for features intentionally removed from the product. Companion to the existing `stale` computed status.
 - `prototyper migrate --from 1.0 --to 1.1` — CLI migration tool to add empty `acceptance_criteria: []` arrays to existing `stories.yaml` files.
 - Story Guard community ports — Windsurf, Aider, GitHub Copilot (BYOK), Continue.dev. Claude Code ✅ and Cursor ✅ are already documented in [STORY_GUARD.md](./STORY_GUARD.md).
 - `tags` — list of strings for filtering and CI routing (e.g. `[mobile, accessibility, breaking-change]`)
 - `persona` — who this story is for (PM, engineer, admin, new-user, returning-user)
 - `risk` — enum (`low`, `medium`, `high`, `critical`) for requiring human review on sensitive stories
 - `non_functional` — performance, accessibility, security requirements object
+
+---
+
+## [1.1.2] — 2026-05-03
+
+Documentation patch. No schema changes.
+
+### Documentation
+
+- `SCHEMA.md`: expanded **Status values** section with precise semantics for all five values, decision guides (when to use each value, what not to use it for), and a complete status transition diagram.
+- `SCHEMA.md`: added `deprecated` status value — for features intentionally removed from the product. Distinguished from `stale` (unknown state) vs `deprecated` (intentionally removed). Deprecated stories retain their `story_id` permanently.
+- `SCHEMA.md`: added three tooling-SHOULD rules: warn on `partial` stories > 30 days; warn on `stale` stories referenced in open PRs; warn on `implemented` → `deprecated` transitions without a `notes` entry.
+- Version header bumped to v1.1.2.
+
+### Rationale
+
+The status table had one-line definitions that didn't distinguish edge cases: what happens when a feature is removed? When does `stale` resolve? How long can a story be `partial`? Real usage showed authors working around the ambiguity — leaving stories as `stale` indefinitely or using `not-implemented` for removed features. This patch closes the semantic gaps. `deprecated` is added as a documentation-only value (no JSON Schema change required — it is an allowed string value; tooling that handles unknown enum values will surface it correctly until a formal schema patch ships).
 
 ---
 
