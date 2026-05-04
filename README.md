@@ -1,6 +1,8 @@
 # Locus Story Schema
 
-**An open specification for machine-readable user stories.**
+**It's like a test for product specification.**
+
+An open specification format for software requirements. stories.yaml lives in your repo as the single source of truth — your AI coding agent reads it before writing code, CI fails if code diverges from the spec, and tickets, Claude Code, and CI all look at the same contract.
 
 Version: `1.1` — Stable  
 License: MIT  
@@ -12,9 +14,9 @@ Any tool may read.
 
 ## What is it?
 
-The Prototyper Story Schema is a structured format for writing user stories that both humans and tools can read. A story contract is the source of truth for product intent — above code, below business goals.
+The Locus Story Schema is a structured format for writing software requirements that both humans and tools can read. stories.yaml is the single source of truth for product intent — read by AI coding agents before they write code, enforced by CI, and shared across tools without a SaaS login.
 
-Most user stories live in Jira tickets, Notion pages, or plain text files. They're written for people. This schema is written for people *and* tools — your AI coding assistant, your test generator, your CI pipeline.
+Most requirements live in Jira tickets, Notion pages, or plain text files. They're written for people. This schema is written for people *and* tools — your AI coding agent, your CI pipeline, your GitHub Actions audit.
 
 ---
 
