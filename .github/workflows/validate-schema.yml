@@ -16,7 +16,7 @@ on:
 
 jobs:
   validate:
-    name: Validate against schema v1.1
+    name: Validate against schema
     runs-on: ubuntu-latest
 
     steps:
@@ -28,67 +28,56 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install ajv-cli
-        run: npm install -g ajv-cli ajv-formats
+      - name: Install dependencies
+        run: npm install -g ajv-cli ajv-formats js-yaml
+
+      - name: Set schema paths
+        run: |
+          echo "SCHEMA_V10=schema/v1.0/stories.schema.json" >> $GITHUB_ENV
+          echo "SCHEMA_V11=schema/v1.1/stories.schema.json" >> $GITHUB_ENV
+          echo "SCHEMA_V12=schema/v1.2/stories.schema.json" >> $GITHUB_ENV
 
       - name: Validate example YAML files
         run: |
-          # Convert YAML examples to JSON for validation
-          npm install -g js-yaml
-          node -e "
-            const yaml = require('js-yaml');
-            const fs = require('fs');
-            const files = fs.readdirSync('examples').filter(f => f.endsWith('.yaml'));
-            files.forEach(f => {
-              const doc = yaml.load(fs.readFileSync('examples/' + f, 'utf8'));
-              fs.writeFileSync('examples/' + f.replace('.yaml', '-converted.json'), JSON.stringify(doc, null, 2));
-              console.log('Converted: ' + f);
-            });
-          "
-
-      - name: Select schema version
-        id: schema
-        run: |
-          # Auto-select schema based on schema_version in file; default to v1.1
-          echo "SCHEMA_V10=schema/v1.0/stories.schema.json" >> $GITHUB_ENV
-          echo "SCHEMA_V11=schema/v1.1/stories.schema.json" >> $GITHUB_ENV
+          for f in examples/*.yaml; do
+            echo "Validating $f..."
+            node -e "
+              const yaml = require('js-yaml');
+              const fs = require('fs');
+              const doc = yaml.load(fs.readFileSync('$f', 'utf8'));
+              fs.writeFileSync('/tmp/example-converted.json', JSON.stringify(doc, null, 2));
+            "
+            SCHEMA_VER=$(node -e "const f=require('/tmp/example-converted.json'); console.log(f.schema_version||'1.0');")
+            if [[ "$SCHEMA_VER" == 1.0* ]]; then
+              SCHEMA_FILE="$SCHEMA_V10"
+            elif [[ "$SCHEMA_VER" == 1.2* ]]; then
+              SCHEMA_FILE="$SCHEMA_V12"
+            else
+              SCHEMA_FILE="$SCHEMA_V11"
+            fi
+            echo "  Using schema $SCHEMA_FILE (schema_version: $SCHEMA_VER)"
+            ajv validate \
+              -s "$SCHEMA_FILE" \
+              -d /tmp/example-converted.json \
+              --strict=false \
+              --spec=draft2020 \
+              && echo "  ✓ valid" \
+              || (echo "  ✗ invalid" && exit 1)
+          done
 
       - name: Validate example JSON files
         run: |
           for file in examples/*.json; do
-            # Skip converted temp files
-            if [[ "$file" == *"-converted.json" ]]; then
-              continue
-            fi
             echo "Validating $file..."
-            # Detect schema_version and pick the right schema
-            SCHEMA_VER=$(node -e "const f=require('$file'); console.log(f.schema_version||'1.0');")
+            SCHEMA_VER=$(node -e "const f=require('./$file'); console.log(f.schema_version||'1.0');")
             if [[ "$SCHEMA_VER" == 1.0* ]]; then
               SCHEMA_FILE="$SCHEMA_V10"
+            elif [[ "$SCHEMA_VER" == 1.2* ]]; then
+              SCHEMA_FILE="$SCHEMA_V12"
             else
               SCHEMA_FILE="$SCHEMA_V11"
             fi
-            echo "  Using schema $SCHEMA_FILE (file schema_version: $SCHEMA_VER)"
-            ajv validate \
-              -s "$SCHEMA_FILE" \
-              -d "$file" \
-              --strict=false \
-              --spec=draft2020 \
-              && echo "  ✓ $file is valid" \
-              || (echo "  ✗ $file is invalid" && exit 1)
-          done
-
-      - name: Validate converted YAML examples
-        run: |
-          for file in examples/*-converted.json; do
-            echo "Validating $file (converted from YAML)..."
-            SCHEMA_VER=$(node -e "const f=require('$file'); console.log(f.schema_version||'1.0');")
-            if [[ "$SCHEMA_VER" == 1.0* ]]; then
-              SCHEMA_FILE="$SCHEMA_V10"
-            else
-              SCHEMA_FILE="$SCHEMA_V11"
-            fi
-            echo "  Using schema $SCHEMA_FILE (file schema_version: $SCHEMA_VER)"
+            echo "  Using schema $SCHEMA_FILE (schema_version: $SCHEMA_VER)"
             ajv validate \
               -s "$SCHEMA_FILE" \
               -d "$file" \
@@ -113,10 +102,12 @@ jobs:
             SCHEMA_VER=$(node -e "const f=require('/tmp/stories-check.json'); console.log(f.schema_version||'1.0');")
             if [[ "$SCHEMA_VER" == 1.0* ]]; then
               SCHEMA_FILE="$SCHEMA_V10"
+            elif [[ "$SCHEMA_VER" == 1.2* ]]; then
+              SCHEMA_FILE="$SCHEMA_V12"
             else
               SCHEMA_FILE="$SCHEMA_V11"
             fi
-            echo "  Using schema $SCHEMA_FILE (file schema_version: $SCHEMA_VER)"
+            echo "  Using schema $SCHEMA_FILE (schema_version: $SCHEMA_VER)"
             ajv validate \
               -s "$SCHEMA_FILE" \
               -d /tmp/stories-check.json \
@@ -126,6 +117,6 @@ jobs:
               || (echo "  ✗ $file is invalid" && exit 1)
           done
 
-      - name: Clean up temp files
+      - name: Clean up
         if: always()
-        run: rm -f examples/*-converted.json /tmp/stories-check.json
+        run: rm -f /tmp/example-converted.json /tmp/stories-check.json
