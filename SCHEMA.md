@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.2.2  
+**Version:** 1.2.3  
 **Status:** Stable  
 **Date:** 2026-05-04
 
@@ -51,7 +51,7 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
 {
   // ── Identity ──────────────────────────────────────────────────────────────
   "id": "string",          // Stable UUID. Never changes, even if title changes. Optional in hand-authored files.
-  "story_id": "string",    // Human-readable ID, e.g. "US-01". May change. Required.
+  "story_id": "string",    // Human-readable ID, e.g. "US-01". MUST NOT change once assigned. Required.
 
   // ── Content ───────────────────────────────────────────────────────────────
   "title": "string",       // Short, active-voice description. Required.
@@ -735,6 +735,12 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.2.3** — 2026-05-04  
+Patch. Closes a spec-to-schema contradiction on `story_id` stability and adds a machine-readable recommended-pattern annotation.  
+- **`story_id` schema description corrected** — the JSON Schema `$defs/Story/properties/story_id.description` previously read "May change if renumbered. Not stable — use `id` for persistent references." This directly contradicted the v1.1.5 spec rule that `story_id` MUST NOT change once assigned. The description now reads accurately: story_id is stable once assigned, must be unique within the file, and is the reference used in `depends_on`, PRs, and CI output.  
+- **`x-locus-recommended-pattern` annotation added to JSON Schema** — `^[A-Z]{2,8}-[0-9]+$`. This is an advisory annotation, not a breaking `pattern` constraint. Validators SHOULD surface a warning (not an error) when a `story_id` does not match. Closes the gap between the v1.1.5 spec rule ("Validators SHOULD warn when story_id does not match the `<PREFIX>-<NUMBER>` pattern") and the schema, which had no machine-readable encoding of that rule.  
+- **SCHEMA.md Story object TypeScript comment updated**: `story_id` comment now reads "MUST NOT change once assigned" instead of "May change".  
 
 **v1.2.2** — 2026-05-04  
 Patch. Aligns `description` field requirement with real-world usage.  

@@ -10,6 +10,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Schema 
 
 ---
 
+## [1.2.3] — 2026-05-04
+
+Patch. No new fields. Closes a spec-to-schema contradiction on `story_id` stability.
+
+### Fixed
+
+- **`story_id` schema description corrected** — `$defs/Story/properties/story_id.description` previously read "May change if renumbered. Not stable — use `id` for persistent references." This directly contradicts the v1.1.5 spec rule: _"story_id values MUST NOT change once assigned."_ The description now accurately reflects the stability guarantee: story_id must be unique within the file, must not change once assigned, and is the reference used in `depends_on` arrays, PR messages, CI output, and test annotations.
+
+### Added
+
+- **`x-locus-recommended-pattern`** annotation on `story_id` in the JSON Schema: `^[A-Z]{2,8}-[0-9]+$`. Advisory annotation, not a breaking `pattern` constraint. Closes the gap between the v1.1.5 spec rule ("validators SHOULD warn when story_id does not match the `<PREFIX>-<NUMBER>` pattern") and the machine-readable schema, which had no encoding of that rule. Validators reading this extension key SHOULD surface a lint warning (not a validation error) when `story_id` does not match.
+
+### Documentation
+
+- `SCHEMA.md` Story object TypeScript comment: `story_id` comment updated from "May change" to "MUST NOT change once assigned".
+- `SCHEMA.md` version header bumped to v1.2.3.
+
+### Backwards compatibility
+
+No format changes. The `x-locus-recommended-pattern` annotation is an extension key that standard JSON Schema validators ignore. No existing valid file is broken. The description fix is documentation-only.
+
+### Rationale
+
+The `story_id` description in the JSON Schema was copied from v1.0 semantics (where `story_id` was explicitly noted as potentially unstable). v1.1.5 reversed this — making stability a hard requirement — but the schema property description was never updated. Any tool that surfaces property descriptions to users (e.g. VS Code IntelliSense via yaml-language-server) would show the wrong rule. The `x-locus-recommended-pattern` annotation enables linters like the Locus CLI's `validate` command to implement the SHOULD-warn rule without requiring a breaking schema change.
+
+---
+
 ## [1.2.2] — 2026-05-04
 
 Patch. No new fields. Aligns `description` field requirement with real-world usage and the rule already live in `prototyper@v1.1.9`.

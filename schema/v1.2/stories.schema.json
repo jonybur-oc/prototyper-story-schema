@@ -46,7 +46,7 @@
     "Project": {
       "type": "object",
       "title": "Project",
-      "description": "Project metadata. Stable across renames \u2014 use `id` as the canonical reference.",
+      "description": "Project metadata. Stable across renames — use `id` as the canonical reference.",
       "required": [
         "name"
       ],
@@ -73,7 +73,7 @@
     "Story": {
       "type": "object",
       "title": "Story",
-      "description": "A single user story. Describes what a user can do or see \u2014 implementation-agnostic, observable, testable.",
+      "description": "A single user story. Describes what a user can do or see — implementation-agnostic, observable, testable.",
       "required": [
         "story_id",
         "title",
@@ -88,14 +88,16 @@
         },
         "story_id": {
           "type": "string",
-          "description": "Human-readable ID, e.g. 'US-01'. May change if renumbered. Not stable \u2014 use `id` for persistent references.",
+          "description": "Human-readable identifier for the story. Examples: 'US-01', 'AUTH-07', 'PAY-12'. MUST be unique within the file and MUST NOT change once assigned — stories are referenced by story_id in depends_on arrays, PR messages, CI output, and test annotations. Recommended format: <PREFIX>-<NUMBER> (2–8 uppercase ASCII letters, hyphen, zero-padded integer). If the stable UUID id field is present, use that for persistent programmatic references; story_id is for human-readable references.",
           "minLength": 1,
           "maxLength": 64,
           "examples": [
             "US-01",
             "AUTH-03",
             "DASH-12"
-          ]
+          ],
+          "x-locus-recommended-pattern": "^[A-Z]{2,8}-[0-9]+$",
+          "x-locus-recommended-pattern-note": "Validators SHOULD warn (not error) when story_id does not match this pattern. The pattern is advisory — other formats are not invalid, but tools may surface a lint warning."
         },
         "title": {
           "type": "string",
@@ -183,7 +185,7 @@
         },
         "pr_refs": {
           "type": "array",
-          "description": "GitHub PR URLs that implement this story. Optional. Strings only in files \u2014 rich PRRef objects are API-only. See design decision A.3.",
+          "description": "GitHub PR URLs that implement this story. Optional. Strings only in files — rich PRRef objects are API-only. See design decision A.3.",
           "items": {
             "type": "string",
             "format": "uri",
@@ -208,7 +210,7 @@
           "oneOf": [
             {
               "type": "array",
-              "description": "Human-readable, testable conditions that define when this story is done. Not Gherkin/BDD \u2014 plain English. Each item should be verifiable by a QA engineer.",
+              "description": "Human-readable, testable conditions that define when this story is done. Not Gherkin/BDD — plain English. Each item should be verifiable by a QA engineer.",
               "items": {
                 "type": "string",
                 "minLength": 1
@@ -274,7 +276,7 @@
           "oneOf": [
             {
               "type": "array",
-              "description": "Explicit test file paths (optionally with line anchors) that verify this story. Makes audit deterministic \u2014 the audit checks these files rather than inferring from code search.",
+              "description": "Explicit test file paths (optionally with line anchors) that verify this story. Makes audit deterministic — the audit checks these files rather than inferring from code search.",
               "items": {
                 "type": "string",
                 "minLength": 1
@@ -357,7 +359,7 @@
           "oneOf": [
             {
               "type": "string",
-              "description": "The user role or actor this story is written for. Short identifier \u2014 matches the subject of the story title. E.g. 'employee', 'admin', 'guest', 'api-consumer'. Distinct from assignee (implementer) \u2014 this is who benefits from the story.",
+              "description": "The user role or actor this story is written for. Short identifier — matches the subject of the story title. E.g. 'employee', 'admin', 'guest', 'api-consumer'. Distinct from assignee (implementer) — this is who benefits from the story.",
               "minLength": 1,
               "maxLength": 128,
               "examples": [
@@ -372,7 +374,7 @@
               "type": "null"
             }
           ],
-          "description": "The user persona this story is written for. Who benefits from this story. Single value \u2014 if a story serves multiple personas it should be split. Null or absent if not applicable (e.g. system-level stories)."
+          "description": "The user persona this story is written for. Who benefits from this story. Single value — if a story serves multiple personas it should be split. Null or absent if not applicable (e.g. system-level stories)."
         },
         "risk": {
           "oneOf": [
@@ -508,7 +510,7 @@
     "NonFunctional": {
       "type": "object",
       "title": "NonFunctional",
-      "description": "Story-level non-functional requirements. Constraints on how the story must be implemented \u2014 not what it does (that's the description + acceptance_criteria), but how fast, how reliably, how accessibly. Only include constraints that are specific to this story; project-wide defaults should live elsewhere.",
+      "description": "Story-level non-functional requirements. Constraints on how the story must be implemented — not what it does (that's the description + acceptance_criteria), but how fast, how reliably, how accessibly. Only include constraints that are specific to this story; project-wide defaults should live elsewhere.",
       "additionalProperties": false,
       "properties": {
         "performance": {
@@ -690,7 +692,7 @@
               "type": "string",
               "description": "Free text reason for the compliance block, e.g. regulatory article reference.",
               "examples": [
-                "PSD2 Article 95 \u2014 strong authentication requirement"
+                "PSD2 Article 95 — strong authentication requirement"
               ]
             },
             {
@@ -702,5 +704,5 @@
       }
     }
   },
-  "$comment": "Canonical URL: https://locus.dev/schema/v1.2.json \u2014 GitHub raw fallback: https://raw.githubusercontent.com/jonybur/locus-story-schema/main/schema/v1.2/stories.schema.json"
+  "$comment": "Canonical URL: https://locus.dev/schema/v1.2.json — GitHub raw fallback: https://raw.githubusercontent.com/jonybur/locus-story-schema/main/schema/v1.2/stories.schema.json"
 }
