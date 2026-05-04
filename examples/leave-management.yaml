@@ -56,7 +56,7 @@ stories:
       - Reject action requires a reason (min 10 chars) before submission
     risk:
       level: medium
-      category: data
+      category: compliance
       description: Rejection without reason creates ambiguity for the employee and HR audit trail.
       mitigation: Enforce minimum-length reason field; store rejection reason in request record.
 
