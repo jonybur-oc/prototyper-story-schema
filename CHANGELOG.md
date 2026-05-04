@@ -10,6 +10,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Schema 
 
 ---
 
+## [1.2.2] — 2026-05-04
+
+Patch. No new fields. Aligns `description` field requirement with real-world usage and the rule already live in `prototyper@v1.1.9`.
+
+### Changed
+
+- **`description` is now conditional** — required only when `acceptance_criteria` is absent or empty. A story must have at least one of the two. Previously the JSON Schema required `description` unconditionally, but the spec site (locus.dev, `prototyper`) had already relaxed this rule in May 2026 after finding that teams writing `acceptance_criteria` lists were forced to duplicate the same content as prose. This patch brings the schema repository into alignment.
+
+### JSON Schema changes (`schema/v1.2/stories.schema.json`)
+
+- Removed `description` from the `Story.$defs.Story.required` array (was `['story_id', 'title', 'description', 'status']`; now `['story_id', 'title', 'status']`).
+- Added `if`/`then` block on the `Story` object: if `acceptance_criteria` is absent or not a non-empty array, then `description` is required.
+
+### Documentation
+
+- Updated `SCHEMA.md` Story object TypeScript comment for `description`: now reads "Required unless acceptance_criteria is present and non-empty."
+- Updated `SCHEMA.md` minimal example header to reflect the new rule.
+- Added **The `description` field and `acceptance_criteria` — which to use** section in `SCHEMA.md` with authoring guidance, three YAML examples (description-only, acceptance_criteria-only, both), and a decision table.
+- Added v1.2.2 entry in changelog section of `SCHEMA.md`.
+
+### Backwards compatibility
+
+Files valid under v1.2.1 remain valid. The change only relaxes a constraint (removes an unconditional requirement). No existing valid file is broken. The `schema_version` field in `stories.yaml` files does not need to be bumped — this is a validator-side relaxation, not a format change.
+
+---
+
 ## [1.2.1] — 2026-05-04
 
 Patch. No new fields. Backwards-compatible status value addition.

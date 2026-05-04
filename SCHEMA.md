@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.2.1  
+**Version:** 1.2.2  
 **Status:** Stable  
 **Date:** 2026-05-04
 
@@ -56,7 +56,8 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
   // ── Content ───────────────────────────────────────────────────────────────
   "title": "string",       // Short, active-voice description. Required.
   "description": "string", // Observable behaviour. What a user can do or see.
-                           //   Implementation-agnostic. Required.
+                           //   Implementation-agnostic.
+                           //   Required unless acceptance_criteria is present and non-empty.
   "section": "string",     // Feature area grouping, e.g. "Auth", "Dashboard". Optional.
   "notes": "string | null",  // Rationale, scope exclusions, ADR links. Distinct from description. Optional.
 
@@ -506,6 +507,64 @@ A good description is:
 
 ---
 
+## The `description` field and `acceptance_criteria` — which to use
+
+As of v1.2.2, `description` is conditional: it is required only when `acceptance_criteria` is absent or empty. A story must have at least one of the two.
+
+### When to use `description` alone
+
+Use a prose `description` when the behaviour is simple enough to state in one or two sentences:
+
+```yaml
+story_id: US-01
+title: User can log out
+description: Clicking the logout button ends the session and redirects to /login.
+status: not-implemented
+```
+
+### When to use `acceptance_criteria` alone
+
+Use `acceptance_criteria` (without `description`) when you have a list of testable conditions that fully capture the expected behaviour. This is the preferred form for stories that will be audited by CI:
+
+```yaml
+story_id: AUTH-07
+title: User can reset their password
+status: not-implemented
+acceptance_criteria:
+  - Reset link is sent to the email address on file within 30 seconds
+  - Link expires after 24 hours
+  - Clicking an expired link shows an error and prompts a new request
+  - After reset, the old password no longer works
+```
+
+### When to use both
+
+Use both when the prose `description` adds narrative context that the criteria list alone doesn't convey — especially for complex features or when writing for a PM/design audience as well as engineers:
+
+```yaml
+story_id: PAY-03
+title: User can retry a failed payment
+description: >
+  When a payment fails, the user should be able to retry without re-entering
+  card details. The retry uses the same payment method as the original attempt.
+status: not-implemented
+acceptance_criteria:
+  - Failed payment screen shows a Retry button
+  - Retry attempts the same card without prompting for card details again
+  - After 3 consecutive failures, the Retry button is replaced with Change Payment Method
+```
+
+### Rule summary
+
+| Has `description` | Has `acceptance_criteria` | Valid? |
+|---|---|---|
+| ✅ yes | ✅ yes | ✅ Valid (recommended for complex stories) |
+| ✅ yes | ❌ no | ✅ Valid |
+| ❌ no | ✅ yes (non-empty) | ✅ Valid |
+| ❌ no | ❌ no / null / empty | ❌ Invalid — validator error |
+
+---
+
 ## Full example (JSON)
 
 ```json
@@ -571,7 +630,7 @@ A good description is:
 
 ## Minimal example (hand-authored YAML)
 
-For hand-authored files, only `story_id`, `title`, `description`, and `status` are required:
+For hand-authored files, only `story_id`, `title`, `status`, and either `description` or `acceptance_criteria` (or both) are required:
 
 ```yaml
 schema_version: "1.1"
@@ -676,6 +735,17 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.2.2** — 2026-05-04  
+Patch. Aligns `description` field requirement with real-world usage.  
+- **`description` is now conditional** — required only when `acceptance_criteria` is absent or empty. A story must have at least one of the two. This matches the rule shipped in `prototyper@v1.1.9` (May 2026) which found that teams writing full `acceptance_criteria` lists were forced to duplicate content in a prose `description`. Syncs the canonical spec and JSON Schema to that behaviour.  
+- Updated JSON Schema (`schema/v1.2/stories.schema.json`): removed `description` from the `required` array; added `if`/`then` conditional that requires `description` when `acceptance_criteria` is absent or non-array or empty.  
+- Updated Story object TypeScript comment: `description` now annotated "Required unless acceptance_criteria is present and non-empty."
+- Updated minimal example header: `story_id`, `title`, `status`, and either `description` or `acceptance_criteria` are required.
+- Added **The `description` field and `acceptance_criteria` — which to use** section with authoring guidance, examples, and a decision table.
+
+**v1.2.1** — 2026-05-04  
+`in-progress` status value added. Patch only — see v1.2.1 entry in CHANGELOG.md.
 
 **v1.2.0** — 2026-05-04  
 Minor version. Backwards-compatible additions. All new fields are optional; files valid against v1.1 are valid against v1.2.
