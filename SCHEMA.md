@@ -1,8 +1,8 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.1.5  
-**Status:** Stable  
-**Date:** 2026-05-03
+**Version:** 1.2.0  
+**Status:** Draft  
+**Date:** 2026-05-04
 
 ---
 
@@ -84,7 +84,13 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
   "depends_on": ["string"] | null,           // story_id values that must be done first. Optional.
 
   // ── Compliance (optional) ─────────────────────────────────────────────────
-  "compliance": Compliance | null  // Formal approval block. Include for regulated-sector stories.
+  "compliance": Compliance | null,  // Formal approval block. Include for regulated-sector stories.
+
+  // ── v1.2 additions ────────────────────────────────────────────────────────
+  "tags": ["string"] | null,         // Free-form labels for cross-cutting concerns. Optional.
+  "persona": "string" | null,        // User role this story is written for. Optional.
+  "risk": Risk | null,               // Risk assessment block. Optional.
+  "non_functional": NonFunctional | null  // Story-level NFRs (perf, a11y, retention). Optional.
 }
 ```
 
@@ -135,6 +141,154 @@ compliance:
 - `audit_note` SHOULD reference the specific regulatory article or control — this makes audit trails actionable.
 - The `stale` status MUST NOT be set on a story that has a `compliance` block without re-approval. Tooling should surface a warning when a `stale` story carries a compliance block.
 - Do not set the `compliance` block as a placeholder. It signals human sign-off has occurred; use `audit_note` to explain what is pending if sign-off is not yet complete.
+
+---
+
+## tags (v1.2)
+
+Free-form labels for cross-cutting concerns. Lowercase alphanumeric; hyphens allowed. Max 20 tags per story, max 64 chars each. Unique within a story.
+
+Use `tags` for concerns that don't fit neatly into `section` or `priority`: delivery milestones (`mvp`, `wave-2`), platform variants (`mobile`, `desktop`, `api`), quality dimensions (`a11y`, `perf`, `security`), or ad-hoc groupings (`external-api`, `beta-only`).
+
+**Tooling usage:** `locus list --tag mvp` filters to tagged stories. The GitHub Action can be configured to fail if `mvp`-tagged stories are not implemented at release.
+
+```yaml
+story_id: DASH-04
+title: Dashboard renders on mobile
+tags: [mobile, mvp, a11y]
+```
+
+**Rules:**
+- Tags must match `^[a-z0-9][a-z0-9-]*[a-z0-9]$` (or single char `[a-z0-9]`).
+- No spaces, no uppercase, no underscores.
+- Duplicate tags within a story are invalid (schema enforces `uniqueItems`).
+- Tags are not a substitute for `section` — use `section` for the primary feature area and tags for secondary concerns.
+
+---
+
+## persona (v1.2)
+
+The user role this story is written for. Single value — who benefits from the story. Should match the subject of the story title.
+
+```yaml
+story_id: AUTH-01
+title: Employee can reset their password
+persona: employee
+```
+
+**Rules:**
+- One persona per story. If a story serves two personas, split it.
+- Use the same persona strings consistently across all stories (e.g. always `admin`, not sometimes `administrator`).
+- `persona` is who benefits, not who implements (`assignee` is the implementer).
+- System-level stories with no human actor may omit `persona` (null/absent).
+
+**Recommended approach:** Define your project's persona vocabulary in a comment at the top of `stories.yaml` or in a companion `personas.md`. Tooling can then warn when an unknown persona string appears.
+
+---
+
+## risk (v1.2)
+
+Risk assessment for a story. Include when the story touches security, data, regulated behaviour, or when implementation complexity is non-trivial.
+
+```typescript
+{
+  "level": "critical" | "high" | "medium" | "low",  // Required.
+  "category": "security" | "data-loss" | "privacy" | "performance" | "reliability" | "compliance" | "third-party" | "scope-creep" | "other" | null,
+  "description": "string | null",  // What could go wrong.
+  "mitigation": "string | null",   // What is being done about it.
+  "review_ref": "string (URI) | null"  // Link to threat model, ADR, or review doc.
+}
+```
+
+### Risk field reference
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `level` | enum | ✅ | Severity: `critical` (blocks ship), `high` (explicit mitigation required), `medium` (monitor), `low` (noted). |
+| `category` | enum \| null | ✗ | Risk type. Use canonical values where applicable. |
+| `description` | string \| null | ✗ | What could go wrong. Specific. Required for `high`/`critical`. |
+| `mitigation` | string \| null | ✗ | Action taken or planned to reduce the risk. Required for `high`/`critical`. |
+| `review_ref` | URI \| null | ✗ | Link to supporting documentation (threat model, ADR, security review). |
+
+### Risk example (YAML)
+
+```yaml
+story_id: PAY-11
+title: Payment provider webhook validates event signatures
+status: not-implemented
+risk:
+  level: high
+  category: security
+  description: Unsigned or replayed webhooks could trigger fraudulent payment state transitions.
+  mitigation: Verify Stripe-Signature header on every webhook. Reject replays older than 5 minutes. Log and alert on failures.
+  review_ref: https://stripe.com/docs/webhooks/signatures
+```
+
+**Rules:**
+- `level` is the only required field.
+- `description` and `mitigation` SHOULD be present for `high` and `critical` stories. Tooling should warn when they are absent.
+- `risk.level` is independent of `priority`. A low-priority story can carry a high risk (e.g. a rarely-used admin action with a serious data-loss risk).
+- Do not use `risk` as a substitute for the `compliance` block. `compliance` is for formal regulatory sign-off; `risk` is for engineering risk assessment.
+
+---
+
+## non_functional (v1.2)
+
+Story-level non-functional requirements. Constraints on *how* the story must be implemented — latency, availability, accessibility, data retention, security. Only include constraints specific to this story; project-wide defaults live in project documentation.
+
+```typescript
+{
+  "performance": PerformanceNFR | null,
+  "availability": "string | null",      // SLO string, e.g. '99.9%'
+  "accessibility": "WCAG-2.1-AA" | ... | null,
+  "data_retention": "string | null",    // ISO 8601 duration or policy string
+  "security": "string | null",          // Freeform security constraint
+  "notes": "string | null"             // Anything else
+}
+```
+
+### PerformanceNFR sub-object
+
+```typescript
+{
+  "p50_ms": integer,          // 50th percentile latency target (ms)
+  "p95_ms": integer,          // 95th percentile latency target (ms)
+  "p99_ms": integer,          // 99th percentile latency target (ms)
+  "max_ms": integer,          // Hard maximum latency — requests above this are failures
+  "throughput_rps": number,   // Required sustained throughput (requests/sec)
+  "budget_note": "string | null"  // Freeform budget note (e.g. bundle size)
+}
+```
+
+All PerformanceNFR fields are optional — include only what is relevant.
+
+### non_functional example (YAML)
+
+```yaml
+story_id: SEARCH-01
+title: User can search by keyword and receive results
+status: not-implemented
+non_functional:
+  performance:
+    p95_ms: 300
+    p99_ms: 800
+    budget_note: Search index must not exceed 50MB in-memory
+  accessibility: WCAG-2.1-AA
+  data_retention: P90D
+  security: Query input sanitised against injection before index lookup.
+```
+
+### Accessibility levels
+
+Use the canonical `WCAG-X.Y-{A|AA|AAA}` enum values:
+- `WCAG-2.0-A`, `WCAG-2.0-AA`, `WCAG-2.0-AAA`
+- `WCAG-2.1-A`, `WCAG-2.1-AA`, `WCAG-2.1-AAA`
+- `WCAG-2.2-A`, `WCAG-2.2-AA`, `WCAG-2.2-AAA`
+
+**Rules:**
+- Include `non_functional` only when a story has constraints beyond the project default.
+- `non_functional.performance` latency targets should be set with measurement methodology in mind — document how they are validated (load test tool, p50/p95 in Datadog, etc.).
+- `data_retention` uses ISO 8601 duration strings (`P7Y` = 7 years, `P90D` = 90 days) or free-text policy strings when duration alone is insufficient.
 
 ---
 

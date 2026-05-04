@@ -8,14 +8,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Schema 
 
 ## [Unreleased]
 
-Planned for v1.2 (no fixed release date):
+Planned for future versions:
 
 - `prototyper migrate --from 1.0 --to 1.1` — CLI migration tool to add empty `acceptance_criteria: []` arrays to existing `stories.yaml` files.
 - Story Guard community ports — Windsurf, Aider, GitHub Copilot (BYOK), Continue.dev. Claude Code ✅ and Cursor ✅ are already documented in [STORY_GUARD.md](./STORY_GUARD.md).
-- `tags` — list of strings for filtering and CI routing (e.g. `[mobile, accessibility, breaking-change]`)
-- `persona` — who this story is for (PM, engineer, admin, new-user, returning-user)
-- `risk` — enum (`low`, `medium`, `high`, `critical`) for requiring human review on sensitive stories
-- `non_functional` — performance, accessibility, security requirements object
+
+---
+
+## [1.2.0] — 2026-05-04 (Draft)
+
+Minor version. Backwards-compatible additions.
+
+### Added
+
+- **`tags`** — Free-form labels for cross-cutting concerns. Array of lowercase alphanumeric strings (hyphens allowed, max 20 tags, max 64 chars each, unique per story). Use for delivery milestones (`mvp`, `wave-2`), platform variants (`mobile`, `api`), quality dimensions (`a11y`, `perf`, `security`), or ad-hoc groupings. Tooling: `locus list --tag <tag>` filter; GitHub Action can gate on tag coverage.
+- **`persona`** — The user role this story is written for. Single string, max 128 chars. Distinct from `assignee` (implementer) — `persona` is who benefits. Split stories that serve multiple personas. Null for system-level stories.
+- **`risk`** — Risk assessment sub-object. Fields: `level` (required: `critical`/`high`/`medium`/`low`), `category` (enum), `description` (what could go wrong), `mitigation` (what is being done), `review_ref` (URI). `description` and `mitigation` required by convention for `high`/`critical` stories — tooling should warn when absent.
+- **`non_functional`** — Story-level non-functional requirements sub-object. Fields: `performance` (PerformanceNFR sub-object with `p50_ms`, `p95_ms`, `p99_ms`, `max_ms`, `throughput_rps`, `budget_note`), `availability` (SLO string), `accessibility` (WCAG level enum: `WCAG-2.0-A` through `WCAG-2.2-AAA`), `data_retention` (ISO 8601 duration or policy string), `security` (freeform), `notes` (freeform). All fields optional — only include story-specific constraints; project-wide defaults live in project documentation.
+
+### Backwards compatibility
+
+All additions are optional fields. Files valid against v1.1 are valid against v1.2. Readers that handle unknown fields gracefully (as specified in the v1.1 reader contract) need no changes. The `schema_version` field in files should be bumped to `"1.2"` when the new fields are used.
 
 ---
 
