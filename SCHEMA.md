@@ -1,7 +1,7 @@
 # Locus Story Schema — Specification
 
 **Version:** 1.2.0  
-**Status:** Draft  
+**Status:** Stable  
 **Date:** 2026-05-04
 
 ---
@@ -662,6 +662,13 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.2.0** — 2026-05-04  
+Minor version. Backwards-compatible additions. All new fields are optional; files valid against v1.1 are valid against v1.2.
+- **`tags`** — Free-form labels for cross-cutting concerns. Array of lowercase alphanumeric strings (hyphens allowed, max 20 per story, max 64 chars each, unique). Use for delivery milestones (`mvp`, `wave-2`), platform variants (`mobile`, `api`), quality dimensions (`a11y`, `perf`, `security`). Tooling: `locus list --tag <tag>` filter; GitHub Action can gate on tag coverage.
+- **`persona`** — User role the story is written for. Single string, max 128 chars. Distinct from `assignee`. Split stories serving multiple personas. Omit for system-level stories.
+- **`risk`** — Risk assessment sub-object. Fields: `level` (required: `critical`/`high`/`medium`/`low`), `category` (enum), `description`, `mitigation`, `review_ref`. `description` and `mitigation` are required by convention for `high`/`critical` stories — tooling should warn when absent.
+- **`non_functional`** — Story-level non-functional requirements. Sub-objects: `performance` (p50/p95/p99/max ms, throughput, budget note), `availability` (SLO string), `accessibility` (WCAG level enum), `data_retention` (ISO 8601 duration or policy string), `security` (freeform), `notes` (freeform). Include only story-specific constraints; project-wide defaults belong in project documentation.
 
 **v1.1.5** — 2026-05-03  
 `story_id` field documented with authoring conventions, uniqueness rules, and stability rules. Added: format pattern (`<PREFIX>-<NUMBER>`), prefix guideline table, uniqueness constraints (MUST be unique within file, RECOMMENDED across files), stability rules (MUST NOT change once assigned), numbering guidance (sequential, gaps permitted, never renumber), and three tooling rules (validators MUST reject duplicates and invalid cross-file depends_on; SHOULD warn on non-conforming IDs and deprecated depends_on). No schema changes — documentation patch only.

@@ -15,7 +15,7 @@ Planned for future versions:
 
 ---
 
-## [1.2.0] — 2026-05-04 (Draft)
+## [1.2.0] — 2026-05-04
 
 Minor version. Backwards-compatible additions.
 
