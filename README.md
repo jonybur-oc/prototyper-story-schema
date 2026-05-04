@@ -1,10 +1,11 @@
-# Prototyper Story Schema
+# Locus Story Schema
 
 **An open specification for machine-readable user stories.**
 
-Version: `1.0` — Stable  
+Version: `1.1` — Stable  
 License: MIT  
-Canonical writer: [Prototyper](https://prototyper.app)  
+Schema URL: `https://locus.dev/schema/v1.json`  
+Canonical writer: [Locus](https://locus.dev)  
 Any tool may read.
 
 ---
@@ -20,23 +21,22 @@ Most user stories live in Jira tickets, Notion pages, or plain text files. They'
 ## Quick example
 
 ```yaml
-schema_version: "1.0"
+# yaml-language-server: $schema=https://locus.dev/schema/v1.json
+schema_version: "1.1"
 project:
-  id: "550e8400-e29b-41d4-a716-446655440000"
   name: "Leave Management System"
-  created_at: "2026-04-01T09:00:00Z"
 stories:
-  - id: "7f3d9a2b-1c4e-4f8a-b5d6-9e0f1a2b3c4d"
-    story_id: "US-01"
-    title: "Employee can submit a leave request"
-    description: "Show a form with date range picker and reason field. On submit, create the request and show it in 'Pending' status. Show a confirmation message with the request ID."
-    section: "Leave Requests"
-    status: "implemented"
-    priority: 1
-    assignee: "jony@example.com"
-    created_at: "2026-04-01T09:00:00Z"
-    updated_at: "2026-04-15T14:30:00Z"
-    version: 3
+  - story_id: US-01
+    title: Employee can submit a leave request
+    description: >
+      Show a form with date range picker and reason field. On submit,
+      create the request and show it in 'Pending' status.
+    section: Leave Requests
+    status: implemented
+    acceptance_criteria:
+      - Form shows date range picker and reason field
+      - On submit, request appears in Pending status
+      - Confirmation message shows the new request ID
     pr_refs:
       - "https://github.com/org/repo/pull/42"
 ```
@@ -46,7 +46,9 @@ stories:
 ## Specification
 
 Full spec: [SCHEMA.md](./SCHEMA.md)  
-JSON Schema: [`schema/v1.0/stories.schema.json`](./schema/v1.0/stories.schema.json)
+JSON Schema: [`schema/v1.1/stories.schema.json`](./schema/v1.1/stories.schema.json)  
+Canonical URL: `https://locus.dev/schema/v1.json`  
+GitHub raw (fallback): `https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.1/stories.schema.json`
 
 ### Story object (summary)
 
@@ -143,37 +145,68 @@ npx @prototyper/validate stories.json
 
 ### JSON Schema (for editors and CI)
 
-The machine-readable JSON Schema is in this repo:
+The canonical schema URL is:
 
 ```
-https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json
+https://locus.dev/schema/v1.json
 ```
 
-Add the `$schema` field to your `stories.json` for editor autocomplete and validation:
+GitHub raw fallback (use this until locus.dev is live):
+
+```
+https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.1/stories.schema.json
+```
+
+#### Editor integration
+
+**JSON** — add the `$schema` field for autocomplete and inline validation:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json",
-  "schema_version": "1.0",
-  "project": { ... },
-  "stories": [ ... ]
+  "$schema": "https://locus.dev/schema/v1.json",
+  "schema_version": "1.1",
+  "project": { "name": "My Project" },
+  "stories": []
 }
 ```
 
-Add to your `.vscode/settings.json` for YAML validation:
+**YAML** — add the `yaml-language-server` header comment:
+
+```yaml
+# yaml-language-server: $schema=https://locus.dev/schema/v1.json
+schema_version: "1.1"
+project:
+  name: My Project
+stories: []
+```
+
+This enables inline validation and autocomplete in VS Code (with the [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)), Neovim (via yamlls), and any editor that supports JSON Schema.
+
+**VS Code settings** — apply schema globally to all `stories.yaml` files:
 
 ```json
+// .vscode/settings.json
 {
   "yaml.schemas": {
-    "https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json": "stories.yaml"
+    "https://locus.dev/schema/v1.json": "**/stories.yaml"
   }
 }
 ```
 
+#### CI validation
+
 Validate locally with [ajv-cli](https://github.com/ajv-validator/ajv-cli):
 
 ```bash
-npx ajv-cli validate -s schema/v1.0/stories.schema.json -d examples/leave-management.json
+npx ajv-cli validate -s schema/v1.1/stories.schema.json -d stories.json
+```
+
+Or use the GitHub Action:
+
+```yaml
+- uses: jonybur-oc/locus-audit-action@v1
+  with:
+    stories-path: stories.yaml
 ```
 
 ---
@@ -200,7 +233,7 @@ Readers should:
 - Handle unknown fields gracefully (ignore, don't error)
 - Surface an error if `schema_version` major is higher than supported
 
-**Current: `1.0` — Stable.**
+**Current: `1.1` — Stable.** Full changelog in [SCHEMA.md](./SCHEMA.md#changelog).
 
 ---
 
