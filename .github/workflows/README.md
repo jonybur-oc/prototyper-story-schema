@@ -43,7 +43,7 @@ jobs:
 
       - name: Validate against schema
         run: |
-          curl -s https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.0/stories.schema.json \
+          curl -s https://raw.githubusercontent.com/jonybur/locus-story-schema/main/schema/v1.0/stories.schema.json \
             > /tmp/stories.schema.json
           ajv validate \
             -s /tmp/stories.schema.json \

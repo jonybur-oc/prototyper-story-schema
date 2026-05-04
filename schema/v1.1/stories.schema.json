@@ -371,5 +371,5 @@
       }
     }
   },
-  "$comment": "Canonical URL: https://locus.dev/schema/v1.json \u2014 GitHub raw fallback: https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.1/stories.schema.json"
+  "$comment": "Canonical URL: https://locus.dev/schema/v1.json \u2014 GitHub raw fallback: https://raw.githubusercontent.com/jonybur/locus-story-schema/main/schema/v1.1/stories.schema.json"
 }

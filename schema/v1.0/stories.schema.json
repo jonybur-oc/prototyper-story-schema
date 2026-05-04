@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.0/stories.schema.json",
+  "$id": "https://raw.githubusercontent.com/jonybur/locus-story-schema/main/schema/v1.0/stories.schema.json",
   "title": "Prototyper Story Contract",
   "description": "Machine-readable user story contract. A structured format for writing user stories that AI coding assistants, CI pipelines, and audit tools can read alongside humans.",
   "type": "object",
