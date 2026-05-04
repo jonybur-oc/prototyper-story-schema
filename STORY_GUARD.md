@@ -244,10 +244,10 @@ If you've implemented Story Guard with a different agent (Aider, Devin, GitHub C
 Current reference implementations:
 - [x] Claude Code (PostToolUse hooks via `.claude/settings.json`)
 - [x] Cursor (rules via `.cursor/rules`)
-- [ ] Windsurf — [contribute](https://github.com/jonybur-oc/prototyper-story-schema/issues)
-- [ ] Aider — [contribute](https://github.com/jonybur-oc/prototyper-story-schema/issues)
-- [ ] GitHub Copilot — [contribute](https://github.com/jonybur-oc/prototyper-story-schema/issues)
-- [ ] Continue.dev — [contribute](https://github.com/jonybur-oc/prototyper-story-schema/issues)
+- [ ] Windsurf — [contribute](https://github.com/jonybur/prototyper-story-schema/issues)
+- [ ] Aider — [contribute](https://github.com/jonybur/prototyper-story-schema/issues)
+- [ ] GitHub Copilot — [contribute](https://github.com/jonybur/prototyper-story-schema/issues)
+- [ ] Continue.dev — [contribute](https://github.com/jonybur/prototyper-story-schema/issues)
 
 ---
 
@@ -259,4 +259,4 @@ The principle is sound. The implementation will get better with use.
 
 ---
 
-*Part of the [Prototyper open schema](https://github.com/jonybur-oc/prototyper-story-schema). MIT licensed.*
+*Part of the [Prototyper open schema](https://github.com/jonybur/prototyper-story-schema). MIT licensed.*

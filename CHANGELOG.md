@@ -203,7 +203,7 @@ Initial stable release of the Prototyper Story Schema.
 ### Added (2026-04-26 — feat(plugin): Claude Code plugin structure, d3bc9f5)
 
 - `.claude/settings.json` — Claude Code plugin config. Wires `get_active_story()` as a `PostToolUse` hook: after every file write, bash command, or MCP tool call, the hook calls `get_active_story()` and the agent checks its action scope against the active story's `description`.
-- `.claude-plugin/` — self-hosted plugin manifest. Enables `/plugin marketplace add jonybur-oc/prototyper-story-schema` install path.
+- `.claude-plugin/` — self-hosted plugin manifest. Enables `/plugin marketplace add jonybur/prototyper-story-schema` install path.
 - `.mcp.json` — MCP server config. Points to `@prototyper/mcp-server`.
 - `marketplace.json` — plugin marketplace entry for Claude Code.
 - `skills/` — write-story and sync-stories skill templates.
@@ -256,9 +256,9 @@ Both are valid. YAML is the recommended authoring format because multiline strin
 
 ---
 
-[Unreleased]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.3...HEAD
-[1.1.3]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.2...v1.1.3
-[1.1.2]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.1...v1.1.2
-[1.1.1]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/jonybur-oc/prototyper-story-schema/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/jonybur-oc/prototyper-story-schema/releases/tag/v1.0.0
+[Unreleased]: https://github.com/jonybur/prototyper-story-schema/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/jonybur/prototyper-story-schema/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/jonybur/prototyper-story-schema/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/jonybur/prototyper-story-schema/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/jonybur/prototyper-story-schema/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/jonybur/prototyper-story-schema/releases/tag/v1.0.0

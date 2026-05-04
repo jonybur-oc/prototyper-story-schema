@@ -48,7 +48,7 @@ stories:
 Full spec: [SCHEMA.md](./SCHEMA.md)  
 JSON Schema: [`schema/v1.1/stories.schema.json`](./schema/v1.1/stories.schema.json)  
 Canonical URL: `https://locus.dev/schema/v1.json`  
-GitHub raw (fallback): `https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.1/stories.schema.json`
+GitHub raw (fallback): `https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.1/stories.schema.json`
 
 ### Story object (summary)
 
@@ -154,7 +154,7 @@ https://locus.dev/schema/v1.json
 GitHub raw fallback (use this until locus.dev is live):
 
 ```
-https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.1/stories.schema.json
+https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.1/stories.schema.json
 ```
 
 #### Editor integration
@@ -245,7 +245,7 @@ Install the Prototyper plugin directly from Claude Code:
 
 ```bash
 # Add the self-hosted plugin marketplace
-/plugin marketplace add jonybur-oc/prototyper-story-schema
+/plugin marketplace add jonybur/prototyper-story-schema
 
 # Install the plugin
 /plugin install prototyper
@@ -277,7 +277,7 @@ claude mcp add prototyper \
 # 2. Copy the agent template
 mkdir -p .claude/agents
 curl -o .claude/agents/story-implementer.md \
-  https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/.claude/agents/story-implementer.md
+  https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/.claude/agents/story-implementer.md
 ```
 
 The agent will appear in Claude Code's `/` picker. When invoked, it reads your sprint backlog from Prototyper, implements to acceptance criteria, and marks stories as implemented when done. See [`.claude/agents/story-implementer.md`](./.claude/agents/story-implementer.md) for the full template.

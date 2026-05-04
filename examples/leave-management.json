@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/jonybur-oc/prototyper-story-schema/main/schema/v1.0/stories.schema.json",
+  "$schema": "https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.0/stories.schema.json",
   "schema_version": "1.0",
   "project": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
