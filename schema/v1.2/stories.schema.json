@@ -124,6 +124,7 @@
           "description": "Implementation status. Set by Locus's audit process or manually. Do not infer from other fields.",
           "enum": [
             "not-implemented",
+            "in-progress",
             "partial",
             "implemented",
             "stale",

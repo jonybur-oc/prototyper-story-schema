@@ -8,6 +8,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Schema 
 
 ## [Unreleased]
 
+---
+
+## [1.2.1] — 2026-05-04
+
+Patch. No new fields. Backwards-compatible status value addition.
+
+### Added
+
+- **`in-progress` status value** — Human-set status indicating active development. Distinct from `partial` (audit-set): `in-progress` expresses intent; `partial` expresses evidence. Added to `SCHEMA.md` status table, status semantics, and status transition diagram. Added to `schema/v1.2/stories.schema.json` enum.
+
+### Rationale
+
+`in-progress` existed in real `stories.yaml` files (e.g. prototyper) since v1.2.0 of the spec hosted at locus.dev, but had not been synced to this schema repository. The JSON Schema validator was incorrectly rejecting valid files. This patch brings the schema repo into alignment with the live spec.
+
+---
+
 Planned for future versions:
 
 - `prototyper migrate --from 1.0 --to 1.1` — CLI migration tool to add empty `acceptance_criteria: []` arrays to existing `stories.yaml` files.

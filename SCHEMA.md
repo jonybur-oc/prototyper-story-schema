@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.2.0  
+**Version:** 1.2.1  
 **Status:** Stable  
 **Date:** 2026-05-04
 
@@ -61,7 +61,7 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
   "notes": "string | null",  // Rationale, scope exclusions, ADR links. Distinct from description. Optional.
 
   // ── Status ────────────────────────────────────────────────────────────────
-  "status": "not-implemented" | "partial" | "implemented" | "stale" | "deprecated",  // Required.
+  "status": "not-implemented" | "in-progress" | "partial" | "implemented" | "stale" | "deprecated",  // Required.
   "priority": 0 | 1 | 2 | 3,  // 0=urgent, 1=high, 2=medium, 3=low. Optional.
 
   // ── Collaboration ─────────────────────────────────────────────────────────
@@ -297,7 +297,8 @@ Use the canonical `WCAG-X.Y-{A|AA|AAA}` enum values:
 | Value | Meaning |
 |---|---|
 | `not-implemented` | Story exists; no implementation detected |
-| `partial` | Implementation detected but incomplete |
+| `in-progress` | Work has started; human-set to signal active development |
+| `partial` | Implementation detected but incomplete (audit-set) |
 | `implemented` | Implementation detected and verified |
 | `stale` | Previously implemented; source files changed since last audit |
 | `deprecated` | Feature was intentionally removed; story retained for history |
@@ -311,6 +312,15 @@ Each value has a precise meaning. Use the decision guide below when setting stat
 **`not-implemented`** — The story has been written and accepted, but no implementation exists. This is the starting state for all new stories. Use this when:
 - A feature is planned but no code has been written.
 - A story was rolled back completely and code was deleted.
+
+**`in-progress`** — Work has started on this story. This status is human-set — it signals active development intent. Use this when:
+- An engineer has begun implementation but acceptance criteria are not yet satisfied.
+- A story is actively being worked in the current sprint.
+- You want Story Guard to know work is underway without claiming completion.
+
+`in-progress` is distinct from `partial`: `partial` is set by the audit tool when it detects evidence of incomplete implementation; `in-progress` is set by a human to express intent. A story may transition from `in-progress` → `partial` when the audit first detects partial implementation, or → `implemented` when all criteria are met.
+
+Do not leave stories in `in-progress` across sprints. If work stalls, move back to `not-implemented`.
 
 **`partial`** — Some acceptance criteria are satisfied but not all. The feature exists but is incomplete. Use this when:
 - The UI renders but a key interaction is missing.
@@ -348,8 +358,12 @@ Deprecated stories MUST retain their `story_id` permanently. Other stories may r
 ### Status transitions
 
 ```
-not-implemented → partial      (some criteria met)
+not-implemented → in-progress  (work started; human-set)
+not-implemented → partial      (some criteria met; audit-set)
 not-implemented → implemented  (all criteria met in one pass)
+in-progress     → partial      (audit detects incomplete implementation)
+in-progress     → implemented  (all criteria met)
+in-progress     → not-implemented  (work abandoned or deferred)
 partial         → implemented  (remaining criteria met)
 partial         → not-implemented  (rollback; criteria no longer met)
 implemented     → stale        (source changed; re-audit needed)
