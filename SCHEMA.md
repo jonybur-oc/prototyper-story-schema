@@ -1,6 +1,6 @@
 # Locus Story Schema — Specification
 
-**Version:** 1.2.3  
+**Version:** 1.2.4  
 **Status:** Stable  
 **Date:** 2026-05-04
 
@@ -75,14 +75,14 @@ Stories are stored as JSON (canonical) or YAML (human-friendly alias). Both are 
   "version": "integer",     // Increments on every change. Starts at 1. Optional.
 
   // ── Links ─────────────────────────────────────────────────────────────────
-  "pr_refs": ["string"],         // GitHub PR URLs implementing this story. Optional. Strings only — see A.3.
+  "pr_refs": ["string"],         // GitHub PR URLs implementing this story. Optional. Strings only — see A.3. Unique items only.
   "jira_key": "string | null",   // Linked Jira issue key, e.g. "PROJ-123". Optional.
   "design_ref": "string | null", // Figma frame or design artefact URL. Optional.
 
   // ── Quality contract (v1.1) ───────────────────────────────────────────────
-  "acceptance_criteria": ["string"] | null,  // Testable done-conditions. Plain English. Optional.
-  "test_refs": ["string"] | null,            // Test file paths verifying this story. Optional.
-  "depends_on": ["string"] | null,           // story_id values that must be done first. Optional.
+  "acceptance_criteria": ["string"] | null,  // Testable done-conditions. Plain English. Optional. Unique items only — duplicate criteria are invalid.
+  "test_refs": ["string"] | null,            // Test file paths verifying this story. Optional. Unique items only.
+  "depends_on": ["string"] | null,           // story_id values that must be done first. Optional. Unique items only — duplicate deps are invalid.
 
   // ── Compliance (optional) ─────────────────────────────────────────────────
   "compliance": Compliance | null,  // Formal approval block. Include for regulated-sector stories.
@@ -486,6 +486,10 @@ Numbers are scoped to their prefix. `US-01` and `AUTH-01` are distinct stories. 
 Validators MUST:
 - Reject duplicate `story_id` values within a file.
 - Reject `depends_on` references that point to a `story_id` not present in the same file (unless the tool supports cross-file resolution).
+- Reject duplicate items in `depends_on` (same story_id listed twice in one story's dependency list).
+- Reject duplicate items in `acceptance_criteria` (identical criterion text listed twice).
+- Reject duplicate items in `test_refs` (same test path listed twice).
+- Reject duplicate items in `pr_refs` (same PR URL listed twice).
 
 Validators SHOULD warn when:
 - A `story_id` does not match the `<PREFIX>-<NUMBER>` pattern.
@@ -735,6 +739,15 @@ Reader contract:
 ---
 
 ## Changelog
+
+**v1.2.4** — 2026-05-04  
+Patch. Adds `uniqueItems` constraint to all array fields that must not contain duplicates.  
+- **`depends_on` uniqueItems** — JSON Schema now enforces `uniqueItems: true` on the `depends_on` array. A story MUST NOT list the same dependency twice. The Tooling rules section already required validators to reject duplicate `story_id` values in the file; this extends that principle to intra-story array deduplication.  
+- **`acceptance_criteria` uniqueItems** — JSON Schema now enforces `uniqueItems: true`. Duplicate criterion text in the same story is a validation error. Identical criteria add no value and are likely a copy-paste mistake.  
+- **`test_refs` uniqueItems** — JSON Schema now enforces `uniqueItems: true`. A test file path MUST NOT be listed twice for the same story.  
+- **`pr_refs` uniqueItems** — JSON Schema now enforces `uniqueItems: true`. The same PR URL MUST NOT be listed twice.  
+- **Tooling rules updated** — Four new MUST rules added to the `story_id` Tooling rules section, one per array field, making the enforcement expectation explicit to validator authors.  
+- **Story object TypeScript comment updated** — inline comments on `acceptance_criteria`, `test_refs`, `depends_on`, and `pr_refs` now note "Unique items only".  
 
 **v1.2.3** — 2026-05-04  
 Patch. Closes a spec-to-schema contradiction on `story_id` stability and adds a machine-readable recommended-pattern annotation.  

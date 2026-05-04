@@ -10,6 +10,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Schema 
 
 ---
 
+## [1.2.4] — 2026-05-04
+
+Patch. Adds `uniqueItems: true` constraint to all array fields that MUST NOT contain duplicate entries.
+
+### Changed
+
+- **`depends_on` uniqueItems** — JSON Schema now enforces `uniqueItems: true` on the `depends_on` array. Listing the same dependency twice in a single story is a validation error.
+- **`acceptance_criteria` uniqueItems** — JSON Schema now enforces `uniqueItems: true`. Duplicate criterion text within one story is a validation error (likely a copy-paste mistake with no spec value).
+- **`test_refs` uniqueItems** — JSON Schema now enforces `uniqueItems: true`. Duplicate test file paths within one story are a validation error.
+- **`pr_refs` uniqueItems** — JSON Schema now enforces `uniqueItems: true`. Duplicate PR URLs within one story are a validation error.
+
+### Documentation
+
+- `SCHEMA.md` Story object TypeScript comments updated: `acceptance_criteria`, `test_refs`, `depends_on`, and `pr_refs` inline comments now note "Unique items only".
+- `SCHEMA.md` Tooling rules section: four new MUST rules added (one per array field) making the deduplication enforcement expectation explicit for validator authors.
+- `SCHEMA.md` version header bumped to v1.2.4.
+
+### Backwards compatibility
+
+This is a patch-level tightening. Files that were previously valid and well-formed (no duplicate array entries) remain valid. Files with duplicate entries in these arrays are now correctly flagged as invalid. Such duplicates have no semantic value and are virtually always unintentional authoring errors.
+
+---
+
 ## [1.2.3] — 2026-05-04
 
 Patch. No new fields. Closes a spec-to-schema contradiction on `story_id` stability.
