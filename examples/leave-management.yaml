@@ -1,5 +1,5 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/jonybur/locus-story-schema/main/schema/v1.0/stories.schema.json
-schema_version: "1.0"
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jonybur/prototyper-story-schema/main/schema/v1.2/stories.schema.json
+schema_version: "1.2"
 project:
   id: "550e8400-e29b-41d4-a716-446655440000"
   name: "Leave Management System"
@@ -23,6 +23,12 @@ stories:
     pr_refs:
       - "https://github.com/org/repo/pull/42"
     jira_key: "LEAVE-101"
+    persona: employee
+    tags: [mvp, mobile]
+    acceptance_criteria:
+      - Date range picker shows available days (excludes weekends and public holidays)
+      - On submit, request appears in 'Pending' status in the employee's request list
+      - Confirmation message shows the new request ID and estimated approval date
 
   - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     story_id: "US-02"
@@ -42,6 +48,17 @@ stories:
     version: 2
     pr_refs: []
     jira_key: "LEAVE-102"
+    persona: manager
+    tags: [mvp]
+    acceptance_criteria:
+      - Manager sees all pending requests from their direct reports
+      - Approve action changes status to 'Approved' and sends email notification
+      - Reject action requires a reason (min 10 chars) before submission
+    risk:
+      level: medium
+      category: data
+      description: Rejection without reason creates ambiguity for the employee and HR audit trail.
+      mitigation: Enforce minimum-length reason field; store rejection reason in request record.
 
   - id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
     story_id: "US-03"
@@ -60,3 +77,13 @@ stories:
     version: 1
     pr_refs: []
     jira_key: null
+    persona: employee
+    tags: [mobile, api]
+    acceptance_criteria:
+      - Balance shows annual, sick, and personal days remaining and used
+      - Balance updates within 5 seconds of a leave request being approved
+    non_functional:
+      performance:
+        p95_ms: 300
+        budget_note: Balance endpoint hits HR core — keep latency under 300ms p95 to avoid visible lag on mobile
+      accessibility: WCAG-2.1-AA
